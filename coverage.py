@@ -43,8 +43,6 @@ def make_map(fn1, fn2):
   blockstart = block.a
   blocklim = blockstart + block.size
 
-  print blocks
-
   for i in xrange(len(l1)):
     if i >= blocklim:
       blockoffset = 0
@@ -72,9 +70,7 @@ def coverage(src):
   raw_data = open("%s.gcov" % os.path.basename(src))
   ret = {}
 
-  for i in xrange(len(lines)):
-    l = lines[i]
-
+  for l in raw_data:
     taken = line_taken.match(l)
 
     if taken:
@@ -86,27 +82,26 @@ def coverage(src):
 
   raw_data.close()
 
-  retvec = tuple(ret[lineno] for lineno in sorted(ret))
+  #retvec = tuple(ret[lineno] for lineno in sorted(ret))
 
-  print sorted(ret)
+  ret = tuple(sorted(ret))
+  print ret
+  return ret
 
 def compile(src):
   os.system("gcc %s -fprofile-arcs -ftest-coverage -O0 -o bin > /dev/null 2> /dev/null" % src)
 
 def all_tests(src, testfile):
-  ret = []
-  tempdir = tempfile.mkdtemp()
+  ret = set([])
 
   compile(src)
   f = open(testfile)
 
   for l in f:
     run(l.strip())
-    ret.append(coverage(src))
+    ret.add(coverage(src))
 
-  os.system("rm -rf %s" % tempdir)
-
-  return ret
+  #print len(ret)
 
 if __name__ == '__main__':
   import sys
