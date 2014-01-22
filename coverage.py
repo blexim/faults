@@ -18,6 +18,7 @@ line_not_taken = re.compile(line_not_taken_re)
 linemap = None
 
 def run(testvec):
+  os.system("rm *.gcda")
   os.system("./bin %s > /dev/null 2> /dev/null" % testvec)
   
 def make_map(fn1, fn2):
