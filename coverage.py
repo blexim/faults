@@ -4,6 +4,7 @@ import subprocess
 import re
 import os
 import tempfile
+import difflib
 
 branch_re = 'branch *(\d+) taken (\d+)( \(fallthrough\))?'
 branches = re.compile(branch_re)
@@ -14,58 +15,80 @@ line_taken = re.compile(line_taken_re)
 line_not_taken_re = '^\s*\D+:\s*(\d+):'
 line_not_taken = re.compile(line_not_taken_re)
 
-tempdir = None
-expectedlen = None
-golden = None
+linemap = None
 
 def run(testvec):
   os.system("./bin %s > /dev/null 2> /dev/null" % testvec)
+  
+def make_map(fn1, fn2):
+  global linemap
+
+  f1 = open(fn1)
+  l1 = f1.readlines()
+  f1.close()
+
+  f2 = open(fn2)
+  l2 = f2.readlines()
+  f2.close()
+
+  seq = difflib.SequenceMatcher()
+  seq.set_seq1(l1)
+  seq.set_seq2(l2)
+  blocks = seq.get_matching_blocks()
+
+  linemap = {}
+  blockidx = 0
+  block = blocks[blockidx]
+  blockoffset = 0
+  blockstart = block.a
+  blocklim = blockstart + block.size
+
+  print blocks
+
+  for i in xrange(len(l1)):
+    if i >= blocklim:
+      blockoffset = 0
+      blockidx += 1
+      block = blocks[blockidx]
+      blockstart = block.a
+      blocklim = blockstart + block.size
+
+    if i < blockstart:
+      linemap[i] = block.b - 1
+    else:
+      linemap[i] = block.b + blockoffset
+      blockoffset += 1
+
+def find_lineno(no):
+  global linemap
+
+  if linemap is not None:
+    return linemap[no]
+  else:
+    return no
 
 def coverage(src):
-  global expectedlen 
-  global golden
-
   os.system("gcov -bc *.gcda > /dev/null 2> /dev/null")
   raw_data = open("%s.gcov" % os.path.basename(src))
   ret = {}
 
-  for l in raw_data:
+  for i in xrange(len(lines)):
+    l = lines[i]
+
     taken = line_taken.match(l)
-    not_taken = line_not_taken.match(l)
 
     if taken:
       times = int(taken.group(1))
-      lineno = int(taken.group(2))
+      lineno = find_lineno(int(taken.group(2)))
 
       if times > 0:
         ret[lineno] = True
-      else:
-        ret[lineno] = False
-    elif not_taken:
-      lineno = int(not_taken.group(1))
-
-      if lineno not in ret:
-        ret[lineno] = False
 
   raw_data.close()
 
   retvec = tuple(ret[lineno] for lineno in sorted(ret))
 
-  if expectedlen is None:
-    golden = ret
-    expectedlen = len(retvec)
-    os.system("cp %s.gcov golden.gcov" % os.path.basename(src))
-
-  elif len(ret) != expectedlen:
-    print "Expected %d saw %d" % (expectedlen, len(retvec))
-
-    os.system("cp %s.gcov bug.gcov" % os.path.basename(src))
-
-    for lineno in ret:
-      if lineno not in golden:
-        print "New line: %d" % lineno
-
-  return retvec
+  print sorted(ret)
 
 def compile(src):
   os.system("gcc %s -fprofile-arcs -ftest-coverage -O0 -o bin > /dev/null 2> /dev/null" % src)
@@ -91,7 +114,12 @@ if __name__ == '__main__':
   src = sys.argv[1]
   testfile = sys.argv[2]
 
+  if len(sys.argv) > 3:
+    make_map(sys.argv[1], sys.argv[3])
+
+
   vecs = all_tests(src, testfile)
 
-  for v in vecs:
-    print v
+  #for v in vecs:
+  #  print v
+
