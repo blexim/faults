@@ -52,25 +52,25 @@ def do_stats(passed, failed):
   fail_counts = {}
   pass_counts = {}
 
-  for features in set(failed):
+  for features in failed:
     for feature in features:
       if feature not in fail_counts:
-        fail_counts[feature] = 0
+        fail_counts[feature] = 1
 
       fail_counts[feature] += 1
 
 
-  for features in set(passed):
+  for features in passed:
     for feature in features:
       if feature not in pass_counts:
-        pass_counts[feature] = 0
+        pass_counts[feature] = 1
 
       pass_counts[feature] += 1
 
   stats = []
 
   for i in fail_counts:
-    ratio = float(fail_counts[i]**2) / float(pass_counts[i] + 1)
+    ratio = float(fail_counts[i]**2) / float(pass_counts[i])
     stats.append((i, ratio))
 
   return stats
