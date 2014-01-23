@@ -49,30 +49,38 @@ def analyse_tests(golden, mutated):
   return (passed, failed)
 
 def do_stats(passed, failed):
-  counts = {}
+  fail_counts = {}
+  pass_counts = {}
 
-  for features in failed:
+  for features in set(failed):
     for feature in features:
-      if feature not in counts:
-        counts[feature] = 0
+      if feature not in fail_counts:
+        fail_counts[feature] = 0
 
-      counts[feature] += 10
+      fail_counts[feature] += 1
 
-  for features in passed:
+
+  for features in set(passed):
     for feature in features:
-      if feature not in counts:
-        counts[feature] = 0
+      if feature not in pass_counts:
+        pass_counts[feature] = 0
 
-      counts[feature] -= 1
+      pass_counts[feature] += 1
 
-  return counts
+  stats = []
+
+  for i in fail_counts:
+    ratio = float(fail_counts[i]**2) / float(pass_counts[i] + 1)
+    stats.append((i, ratio))
+
+  return stats
 
 def print_stats(stats):
-  lines = sorted([(count, line) for (line, count) in stats.items()],
+  lines = sorted([(stat, line) for (line, stat) in stats],
                  reverse = True)
 
-  for (count, line) in lines:
-    print "%d: %d" % (line, count)
+  for (stat, line) in lines:
+    print "%d: %f" % (line, stat)
 
 
 if __name__ == '__main__':
