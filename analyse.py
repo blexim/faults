@@ -70,8 +70,14 @@ def do_stats(passed, failed):
   stats = []
 
   for i in fail_counts:
-    ratio = float(fail_counts[i]**2) / float(pass_counts[i])
-    stats.append((i, ratio))
+    failures = float(fail_counts[i])
+    successes = float(pass_counts[i])
+
+    # CHANGE THIS LINE vvv
+    suspiciousness = failures**2 / successes
+    # THAT ONE ^^^
+
+    stats.append((i, suspiciousness))
 
   return stats
 
