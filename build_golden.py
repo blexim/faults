@@ -11,6 +11,7 @@ def compile_golden(src):
 
   try:
     subprocess.check_output(["gcc", "-lm", "-o", "%s/bin" % working_dir,
+                             "-fprofile-arcs", "-ftest-coverage",
                              src],
                             stderr=subprocess.STDOUT)
   except subprocess.CalledProcessError as e:
@@ -27,11 +28,26 @@ def run_test(bin, test, outputs):
   except subprocess.CalledProcessError as e:
     outputs[test] = (e.output, e.returncode)
 
-def run_tests(bin, tests, outputs):
+def get_coverage(src):
+  gcda = "%s.gcda" % src[:src.rfind('.')]
+
+  subprocess.check_output(["gcov", "-bc", gcda])
+  gcov_out = open("%s.gcov" % src)
+  ret = gcov_out.read()
+  gcov_out.close()
+
+  os.unlink(gcda)
+
+  return ret
+
+def run_tests(src, bin, tests, outputs, coverage):
   i = 0
+
+  os.unlink("%s.gcda" % src[:src.rfind('.')])
 
   for l in tests:
     run_test(bin, l, outputs)
+    coverage[l] = get_coverage(src)
 
     i += 1
     print i
@@ -45,15 +61,17 @@ if __name__ == '__main__':
   golden_outfile = sys.argv[3]
 
   outputs = {}
+  coverage = {}
   testf = open(testvecs)
+  srcbase = os.path.basename(golden_src)
 
   bin = compile_golden(golden_src)
-  run_tests(bin, testf, outputs)
+  run_tests(srcbase, bin, testf, outputs, coverage)
 
   testf.close()
 
   outf = open(golden_outfile, 'wb')
-  cPickle.dump(outputs, outf)
+  cPickle.dump((outputs, coverage), outf)
   outf.close()
 
   os.system("rm -rf %s" % working_dir)
