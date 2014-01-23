@@ -43,7 +43,10 @@ def get_coverage(src):
 def run_tests(src, bin, tests, outputs, coverage):
   i = 0
 
-  os.unlink("%s.gcda" % src[:src.rfind('.')])
+  try:
+    os.unlink("%s.gcda" % src[:src.rfind('.')])
+  except:
+    pass
 
   for l in tests:
     run_test(bin, l, outputs)
