@@ -23,7 +23,7 @@ def compile_golden(src):
 
 def run_test(bin, test, outputs):
   try:
-    output = subprocess.check_output([bin] + test.split())
+    output = subprocess.check_output([bin] + test.split(), shell=True)
     outputs[test] = (output, 0)
   except subprocess.CalledProcessError as e:
     outputs[test] = (e.output, e.returncode)
@@ -49,11 +49,11 @@ def run_tests(src, bin, tests, outputs, coverage):
     pass
 
   for l in tests:
+    print i
     run_test(bin, l, outputs)
     coverage[l] = get_coverage(src)
 
     i += 1
-    print i
 
 if __name__ == '__main__':
   import sys
