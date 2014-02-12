@@ -56,7 +56,7 @@ def Prob_C_and_E(cf, nf, cp, np):
   return (cf / (cf + nf + cp + np))
 
 
-# CAUSAL MEASURES (x8)
+# CAUSAL MEASURES (x9)
 
 def Suppes(cf, nf, cp, np):
   cf = cf + c
@@ -82,21 +82,21 @@ def Good(cf, nf, cp, np):
 
   return math.log10(((cp * np) + (np * cf)) / ((cp * np) + (cp * nf)))
 
-def PearlSuf(cf, nf, cp, np):
-  cf = cf + c
-  nf = nf + c
-  cp = cp + c
-  np = np + c
-
-  return ((cf / (cf + cp)) - (nf / (nf + np))) / (np / (nf + np))
-
-def PearlNec(cf, nf, cp, np):
+def PearlI(cf, nf, cp, np):
   cf = cf + c
   nf = nf + c
   cp = cp + c
   np = np + c
 
   return ((cf / (cf + cp)) - (nf / (nf + np))) / (cf / (cf + cp))
+
+def PearlII(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+
+  return ((cf / (cf + cp)) - (nf / (nf + np))) / (np / (nf + np))
 
 def Cheng(cf, nf, cp, np):
   cf = cf + c
@@ -130,7 +130,11 @@ def Landsberg(cf, nf, cp, np):
 
   return (np/(np-nf)) - (cp/(cp+cf))
 
-# STATISTICAL MEASURES (x8)
+
+
+
+
+# STATISTICAL MEASURES (x15)
 
 def PPV(cf, nf, cp, np):
   cf = cf + c
@@ -195,6 +199,161 @@ def YulesY(cf, nf, cp, np):
   np = np + c
 
   return ((math.sqrt(cf*np)-math.sqrt(cp*nf)) / (math.sqrt(cf*np)+math.sqrt(cp*nf)))
+
+def GilbertWells(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+
+  t = cf + nf + cp + np
+  return math.log10(cf) - math.log10(t) - math.log10((cf + cp)/t) - math.log10((cf + nf)/t)
+
+def Pearson1(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+
+  bottom = (cf +cp )*(cf +nf )*(cp +np )*(nf +np )
+  t = cf +nf +cp +np 
+  chi_sq = (t*((cf *np )-(cp *nf )))/bottom
+  return chi_sq 
+ 
+def Pearson3(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+
+  rho = ((cf *np ) - (nf *cp )) / sqrt((cf +cp )*(cf +nf )*(cp +np )*(nf +np ))
+  t = cf + nf + cp + np 
+  return pow((rho/(rho+t)), 0.5)
+
+def PearsonHeron2(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+  pi = 3.1415926
+  top = pi*math.sqrt(cp *nf )
+  l_bot = math.sqrt(cf *np )
+  r_bot = math.sqrt(cp *nf )
+  return math.cos(top/(l_bot+r_bot))
+
+
+def GoodKruskal(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+  
+  a1 = 0
+  a2 = 0
+  a3 = 0
+  a4 = 0
+  b1 = 0
+  b2 = 0
+
+  if cf > cp:
+    a1 = cf
+  else:
+    a1 = cp
+
+  if nf > np:
+    a2 = nf
+  else:
+    a2 = np
+
+  if cf > nf:
+    a3 = cf
+  else:
+    a3 = nf
+
+  if cp > np:
+    a3 = cp
+  else:
+    a3 = np
+
+  rho = a1+a2+a3+a4
+  rho2 = 0
+
+  if cf+nf > cp+np:
+    b1 = cf+nf
+  else:
+    b2 = cp+np
+
+  if cf+cp > nf+np:
+    b1 = cf+cp
+  else:
+    b2 = nf+np
+
+  rho2 = b1 + b2
+
+  t = cf + nf + cp + np
+
+  return (rho - rho2) / ((2 * t) - rho2)
+
+def Anderberg(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+  
+  a1 = 0
+  a2 = 0
+  a3 = 0
+  a4 = 0
+  b1 = 0
+  b2 = 0
+
+  if cf > cp:
+    a1 = cf
+  else:
+    a1 = cp
+
+  if nf > np:
+    a2 = nf
+  else:
+    a2 = np
+
+  if cf > nf:
+    a3 = cf
+  else:
+    a3 = nf
+
+  if cp > np:
+    a3 = cp
+  else:
+    a3 = np
+
+  rho = a1+a2+a3+a4
+  rho2 = 0
+
+  if cf+nf > cp+np:
+    b1 = cf+nf
+  else:
+    b2 = cp+np
+
+  if cf+cp > nf+np:
+    b1 = cf+cp
+  else:
+    b2 = nf+np
+
+  rho2 = b1 + b2
+
+  t = cf + nf + cp + np
+
+  return (rho - rho2) / (2 * t)
+
+def Peirce(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+  return ((cf *np ) + (cp *nf )) / ((cf *cp ) + (2*cp *nf ) + (nf *np ))
+
+
 
 # CONFIRMATION MEASURES (x14)
 
@@ -316,7 +475,11 @@ def Rips(cf, nf, cp, np):
 
   return 1 - (Prob_not_C_given_E(cf, nf, cp, np) / Prob_not_C(cf, nf, cp, np))
 
-# NEW SIMILARITY MEASURES (x31)
+
+
+
+
+# NEW SIMILARITY MEASURES (x23)
 
 def Faith(cf, nf, cp, np):
   cf = cf + c
@@ -326,15 +489,6 @@ def Faith(cf, nf, cp, np):
 
   t = cf + nf + cp + np
   return (cf+(0.5*np))/t
-
-def GilbertWells(cf, nf, cp, np):
-  cf = cf + c
-  nf = nf + c
-  cp = cp + c
-  np = np + c
-
-  t = cf + nf + cp + np
-  return math.log10(cf) - math.log10(t) - math.log10((cf + cp)/t) - math.log10((cf + nf)/t)
 
 def Forbes1(cf, nf, cp, np):
   cf = cf + c
@@ -363,7 +517,7 @@ def Forbes2(cf, nf, cp, np):
 
   m = t * mini
 # check this as it seems to measure the reverse of what we want!
-  return ((t * cf) - p)/ (m - k)
+  return (((t * cf) - p)/ (m - k))
 
 def Sorgenfrei(cf, nf, cp, np):
   cf = cf + c
@@ -387,17 +541,6 @@ def Mcconnaughey(cf, nf, cp, np):
   np = np + c
 
   return ((cf *cf )-(cp *nf ))/((cf +cp )*(cf +nf ))
-
-def Kulk2(cf, nf, cp, np):
-  cf = cf + c
-  nf = nf + c
-  cp = cp + c
-  np = np + c
-
-  a = cf / 2
-  b = (2 * cf) + cp + nf 
-  c = ((cf + cp) * (cf + nf))
-  return (a * b) / c
 
 def DandK(cf, nf, cp, np):
   cf = cf + c
@@ -485,38 +628,6 @@ def SokalSneath5(cf, nf, cp, np):
   np = np + c
 
   return (cf *np ) / math.sqrt((cf +cp )*(cf +nf )*(cp +np )*(nf +np ))
-
-def Pearson1(cf, nf, cp, np):
-  cf = cf + c
-  nf = nf + c
-  cp = cp + c
-  np = np + c
-
-  bottom = (cf +cp )*(cf +nf )*(cp +np )*(nf +np )
-  t = cf +nf +cp +np 
-  chi_sq = (t*((cf *np )-(cp *nf )))/bottom
-  return chi_sq 
- 
-def Pearson3(cf, nf, cp, np):
-  cf = cf + c
-  nf = nf + c
-  cp = cp + c
-  np = np + c
-
-  rho = ((cf *np ) - (nf *cp )) / sqrt((cf +cp )*(cf +nf )*(cp +np )*(nf +np ))
-  t = cf + nf + cp + np 
-  return pow((rho/(rho+t)), 0.5)
-
-def PearsonHeron2(cf, nf, cp, np):
-  cf = cf + c
-  nf = nf + c
-  cp = cp + c
-  np = np + c
-  pi = 3.1415926
-  top = pi*math.sqrt(cp *nf )
-  l_bot = math.sqrt(cf *np )
-  r_bot = math.sqrt(cp *nf )
-  return math.cos(top/(l_bot+r_bot))
  
 def Cole(cf, nf, cp, np):
   cf = cf + c
@@ -558,110 +669,6 @@ def Michael(cf, nf, cp, np):
   bottom = (pow((cf +np ),2) + pow((cp +np ),2))
   return top/bottom
 
-def GoodKruskal(cf, nf, cp, np):
-  cf = cf + c
-  nf = nf + c
-  cp = cp + c
-  np = np + c
-  
-  a1 = 0
-  a2 = 0
-  a3 = 0
-  a4 = 0
-  b1 = 0
-  b2 = 0
-
-  if cf > cp:
-    a1 = cf
-  else:
-    a1 = cp
-
-  if nf > np:
-    a2 = nf
-  else:
-    a2 = np
-
-  if cf > nf:
-    a3 = cf
-  else:
-    a3 = nf
-
-  if cp > np:
-    a3 = cp
-  else:
-    a3 = np
-
-  rho = a1+a2+a3+a4
-  rho2 = 0
-
-  if cf+nf > cp+np:
-    b1 = cf+nf
-  else:
-    b2 = cp+np
-
-  if cf+cp > nf+np:
-    b1 = cf+cp
-  else:
-    b2 = nf+np
-
-  rho2 = b1 + b2
-
-  t = cf + nf + cp + np
-
-  return (rho - rho2) / ((2 * t) - rho2)
-
-def Anderberg(cf, nf, cp, np):
-  cf = cf + c
-  nf = nf + c
-  cp = cp + c
-  np = np + c
-  
-  a1 = 0
-  a2 = 0
-  a3 = 0
-  a4 = 0
-  b1 = 0
-  b2 = 0
-
-  if cf > cp:
-    a1 = cf
-  else:
-    a1 = cp
-
-  if nf > np:
-    a2 = nf
-  else:
-    a2 = np
-
-  if cf > nf:
-    a3 = cf
-  else:
-    a3 = nf
-
-  if cp > np:
-    a3 = cp
-  else:
-    a3 = np
-
-  rho = a1+a2+a3+a4
-  rho2 = 0
-
-  if cf+nf > cp+np:
-    b1 = cf+nf
-  else:
-    b2 = cp+np
-
-  if cf+cp > nf+np:
-    b1 = cf+cp
-  else:
-    b2 = nf+np
-
-  rho2 = b1 + b2
-
-  t = cf + nf + cp + np
-
-  return (rho - rho2) / (2 * t)
-
 def Baroni1(cf, nf, cp, np):
   cf = cf + c
   nf = nf + c
@@ -680,13 +687,6 @@ def Baroni2(cf, nf, cp, np):
   top = math.sqrt(cf +np ) + cf  - (cf  + nf )
   bottom = math.sqrt(cf +np ) + cf  + np  + nf 
   return  top/bottom
- 
-def Peirce(cf, nf, cp, np):
-  cf = cf + c
-  nf = nf + c
-  cp = cp + c
-  np = np + c
-  return ((cf *np ) + (cp *nf )) / ((cf *cp ) + (2*cp *nf ) + (nf *np ))
 
 def ShapeDiff(cf, nf, cp, np):
   cf = cf + c
@@ -695,6 +695,14 @@ def ShapeDiff(cf, nf, cp, np):
   np = np + c
   t = cf+nf+cp+np
   return -((t*(cp+nf)) - ((cp-nf)*(cp-nf)))
+
+
+def PatternDiff(cf, nf, cp, np):
+  return -(cp*nf)
+
+def Fager(cf, nf, cp, np):
+  return (cf/sqrt((cf+nf)*(cf+cp))) - (1/(2*sqrt(cf+nf)))
+
 
 # OLD MEASURES (x17)
 
@@ -878,7 +886,7 @@ def Zoltar(cf, nf, cp, np):
   return cf/((cf+nf+cp)+((10000 * nf * cp) / cf))
 
 
-# CUSTOM MEASURES (x1)
+# custom (x1)
 
 def Lex(cf, nf, cp, np):
   cf = cf + c
@@ -904,6 +912,4 @@ def Lex(cf, nf, cp, np):
     output = g
 
   return output
-
-
 
