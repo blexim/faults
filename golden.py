@@ -46,6 +46,10 @@ if __name__ == '__main__':
   import sys
   import os
 
+  if len(sys.argv) < 4:
+    print "Usage: ./golden.py <golden.c> <test vectors> <golden outputs>"
+    sys.exit()
+
   golden_src = sys.argv[1]
   testvecs = sys.argv[2]
   golden_outfile = sys.argv[3]
