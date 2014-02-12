@@ -127,6 +127,7 @@ if __name__ == '__main__':
   feature_file = sys.argv[5]
 
   bugs = find_bugs(golden_src, mutated_src)
+  print "Bugs: %s" % str(bugs)
 
   testf = open(testvecs)
   srcbase = os.path.basename(mutated_src)
