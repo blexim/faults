@@ -4,6 +4,7 @@ import cPickle
 import gzip
 import subprocess
 import tempfile
+import sys
 
 working_dir = tempfile.mkdtemp()
 
@@ -11,9 +12,8 @@ def compile_bin(src):
   global working_dir
 
   try:
-    subprocess.check_output(["gcc", "-lm", "-o", "%s/bin" % working_dir,
-                             "-fprofile-arcs", "-ftest-coverage",
-                             src],
+    subprocess.check_output(["gcc", "-o", "%s/bin" % working_dir,
+                             src, "-lm"],
                             stderr=subprocess.STDOUT)
   except subprocess.CalledProcessError as e:
     print "Compilation failed"
@@ -38,48 +38,28 @@ def run_test(bin, test, outputs, golden_outputs):
       golden_res = golden_outputs[test]
       outputs[test] = (res == golden_res)
 
-def get_coverage(src):
-  gcda = "%s.gcda" % src[:src.rfind('.')]
-  f = open(gcda, "rb")
-  ret = f.read()
-  f.close()
-  os.unlink(gcda)
-
-  return ret
-
-def get_gcno(src):
-  src = os.path.basename(src)
-  gcno = "%s.gcno" % src[:src.rfind('.')]
-  f = open(gcno, "rb")
-  ret = f.read()
-  f.close()
-
-  return ret
-
-def run_tests(src, bin, tests, outputs, golden_outputs, coverage):
+def run_tests(bin, tests, outputs):
   i = 0
 
-  try:
-    os.unlink("%s.gcda" % src[:src.rfind('.')])
-  except:
-    pass
-
   for l in tests:
-    print i
-    run_test(bin, l.strip(), outputs, golden_outputs)
-    coverage[l] = get_coverage(src)
+    sys.stdout.write("%d\r" % i)
+    sys.stdout.flush()
+
+    run_test(bin, l, outputs)
 
     i += 1
+
+  print ""
 
 if __name__ == '__main__':
   import sys
   import os
 
-  if len(sys.argv) < 3:
-    print "Usage: %s <src> <test vectors> <output file> [golden outputs]" % sys.argv[0]
+  if len(sys.argv) < 4:
+    print "Usage: ./golden.py <golden.c> <test vectors> <golden outputs>"
     sys.exit()
 
-  src = sys.argv[1]
+  golden_src = sys.argv[1]
   testvecs = sys.argv[2]
   outfile = sys.argv[3]
 
@@ -91,18 +71,15 @@ if __name__ == '__main__':
     golden_outputs = None
 
   outputs = {}
-  coverage = {}
   testf = open(testvecs)
-  srcbase = os.path.basename(src)
 
-  bin = compile_bin(src)
-  run_tests(srcbase, bin, testf, outputs, golden_outputs, coverage)
-  gcno = get_gcno(src)
+  bin = compile_bin(golden_src)
+  run_tests(bin, testf, outputs)
 
   testf.close()
 
-  outf = gzip.GzipFile(outfile, 'wb')
-  cPickle.dump((outputs, gcno, coverage), outf, True)
+  outf = gzip.GzipFile(golden_outfile, 'wb')
+  cPickle.dump(outputs, outf, -1)
   outf.close()
 
   os.system("rm -rf %s" % working_dir)
