@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import re
 import sys
+import difflib
 
 line_taken_re = re.compile('^\s*(\d+):\s*(\d+):')
 
@@ -83,14 +84,49 @@ def run_tests(src, bin, tests, golden_outputs):
   print ""
   return ret
 
+def find_bugs(orig, mutated):
+  f1 = open(orig)
+  l1 = f1.readlines()
+  f1.close()
+
+  f2 = open(mutated)
+  l2 = f2.readlines()
+  f2.close()
+
+  seq = difflib.SequenceMatcher()
+  seq.set_seq1(l1)
+  seq.set_seq2(l2)
+
+  blocks = seq.get_matching_blocks()
+
+  ret = []
+
+  lastmatch = 0
+
+  for (c1, c2, n) in blocks:
+    if n != 0:
+      ret += range(lastmatch+1, c2+1)
+      lastmatch = c2 + n
+
+  return ret
+
+
 if __name__ == '__main__':
   import sys
   import os
 
-  mutated_src = sys.argv[1]
-  testvecs = sys.argv[2]
-  golden_outputs = sys.argv[3]
-  feature_file = sys.argv[4]
+  if len(sys.argv) < 6:
+    print "Usage: ./mutated.py <golden.c> <mutated.c> <testvectors> <golden outputs> <features>"
+    sys.exit()
+
+
+  golden_src = sys.argv[1]
+  mutated_src = sys.argv[2]
+  testvecs = sys.argv[3]
+  golden_outputs = sys.argv[4]
+  feature_file = sys.argv[5]
+
+  bugs = find_bugs(golden_src, mutated_src)
 
   testf = open(testvecs)
   srcbase = os.path.basename(mutated_src)
@@ -105,7 +141,7 @@ if __name__ == '__main__':
   testf.close()
 
   outf = gzip.GzipFile(feature_file, 'wb')
-  cPickle.dump(features, outf, -1)
+  cPickle.dump((bugs, features), outf, -1)
   outf.close()
 
   os.system("rm -rf %s" % working_dir)
