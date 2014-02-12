@@ -22,21 +22,12 @@ def compile_bin(src):
 
   return "%s/bin" % working_dir
 
-def run_test(bin, test, outputs, golden_outputs):
-  args = [s for s in test.split() if s != '<']
-
+def run_test(bin, test, outputs):
   try:
     output = subprocess.check_output([bin] + test.split(), shell=False)
-    res = (output, 0)
+    outputs[test] = (output, 0)
   except subprocess.CalledProcessError as e:
-    res = (e.output, e.returncode)
-
-  if golden_outputs is None:
-    outputs[test] = res
-  else:
-    if test in golden_outputs:
-      golden_res = golden_outputs[test]
-      outputs[test] = (res == golden_res)
+    outputs[test] = (e.output, e.returncode)
 
 def run_tests(bin, tests, outputs):
   i = 0
@@ -61,14 +52,7 @@ if __name__ == '__main__':
 
   golden_src = sys.argv[1]
   testvecs = sys.argv[2]
-  outfile = sys.argv[3]
-
-  if len(sys.argv) > 4:
-    golden = gzip.GzipFile(sys.argv[4], 'rb')
-    (golden_outputs, _, _) = cPickle.load(golden)
-    golden.close()
-  else:
-    golden_outputs = None
+  golden_outfile = sys.argv[3]
 
   outputs = {}
   testf = open(testvecs)
