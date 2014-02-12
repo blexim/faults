@@ -11,8 +11,8 @@ def compile_bin(src):
   global working_dir
 
   try:
-    subprocess.check_output(["gcc", "-lm", "-o", "%s/bin" % working_dir,
-                             src],
+    subprocess.check_output(["gcc", "-o", "%s/bin" % working_dir,
+                             src, "-lm"],
                             stderr=subprocess.STDOUT)
   except subprocess.CalledProcessError as e:
     print "Compilation failed"
@@ -48,7 +48,7 @@ if __name__ == '__main__':
   outputs = {}
   testf = open(testvecs)
 
-  bin = compile_golden(golden_src)
+  bin = compile_bin(golden_src)
   run_tests(bin, testf, outputs)
 
   testf.close()
