@@ -4,6 +4,7 @@ import cPickle
 import gzip
 import subprocess
 import tempfile
+import sys
 
 working_dir = tempfile.mkdtemp()
 
@@ -32,10 +33,14 @@ def run_tests(bin, tests, outputs):
   i = 0
 
   for l in tests:
-    print i
+    sys.stdout.write("%d\r" % i)
+    sys.stdout.flush()
+
     run_test(bin, l, outputs)
 
     i += 1
+
+  print ""
 
 if __name__ == '__main__':
   import sys

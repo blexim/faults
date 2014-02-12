@@ -5,6 +5,7 @@ import gzip
 import subprocess
 import tempfile
 import re
+import sys
 
 line_taken_re = re.compile('^\s*(\d+):\s*(\d+):')
 
@@ -64,7 +65,8 @@ def run_tests(src, bin, tests, golden_outputs):
 
   i = 0
   for l in tests:
-    print i
+    sys.stdout.write("%d\r" % i)
+    sys.stdout.flush()
     i += 1
 
     if l not in golden_outputs:
@@ -78,6 +80,7 @@ def run_tests(src, bin, tests, golden_outputs):
 
     ret.append((correct, coverage))
 
+  print ""
   return ret
 
 if __name__ == '__main__':
