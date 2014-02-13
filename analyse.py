@@ -96,6 +96,20 @@ def make_ordinals(ranked, score_type=WORST):
 
   return ret
 
+def ensemble_stats(test_results, score_type=WORST):
+  ensemble_ordinals = None
+
+  for m in metrics_suite.suite.values():
+    stats = do_stats(test_results, m)
+    ordinals = make_ordinals(rank(stats), score_type)
+
+    if ensemble_ordinals is None:
+      ensemble_ordinals = ordinals
+    else:
+      for l in ordinals:
+        ensemble_ordinals[l] += ordinals[l]
+
+  return [(l, ensemble_ordinals[l]) for l in ensemble_ordinals]
 
 if __name__ == '__main__':
   import sys
@@ -109,10 +123,10 @@ if __name__ == '__main__':
   if len(sys.argv) > 2:
     metric_name = sys.argv[2]
     metric = metrics_suite.suite[metric_name]
+    stats = do_stats(test_results, metric)
   else:
-    metric = ensemble_metric.Ensemble
+    stats = ensemble_stats(test_results)
 
-  stats = do_stats(test_results, metric)
   ranked = rank(stats)
   print_stats(ranked)
   print bugs
