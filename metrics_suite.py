@@ -4,6 +4,7 @@
 import metrics
 
 suite = {
+  'Prob_C_and_E': metrics.Prob_C_and_E,
   'Suppes': metrics.Suppes,
   'Lewis': metrics.Lewis,
   'Good': metrics.Good,
@@ -83,5 +84,7 @@ suite = {
   'CBIlog': metrics.CBIlog,
   'Zoltar': metrics.Zoltar,
   'Lex': metrics.Lex,
+  'Const': metrics.Const,
+  'Rand': metrics.Rand,
 
 }

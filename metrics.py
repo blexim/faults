@@ -1,5 +1,8 @@
-#!/usr/bin/python
+#!/usr/bi/python
 import math
+import random
+
+random.seed()
 
 # Below are the 80 suspiciousness measures (which begin on line 56)
 # There are 6 types of measures, as follows:
@@ -226,7 +229,7 @@ def Pearson3(cf, nf, cp, np):
   cp = cp + c
   np = np + c
 
-  rho = ((cf *np ) - (nf *cp )) / sqrt((cf +cp )*(cf +nf )*(cp +np )*(nf +np ))
+  rho = ((cf *np ) - (nf *cp )) / math.sqrt((cf +cp )*(cf +nf )*(cp +np )*(nf +np ))
   t = cf + nf + cp + np 
   return pow((rho/(rho+t)), 0.5)
 
@@ -550,8 +553,8 @@ def DandK(cf, nf, cp, np):
 
   a = cf / 2
   b = 1 / (cf + cp)
-  c = 1 / (cf + nf)
-  return a * (b + c)
+  k = 1 / (cf + nf)
+  return a * (b + k)
 
 def Dennis(cf, nf, cp, np):
   cf = cf + c
@@ -701,7 +704,7 @@ def PatternDiff(cf, nf, cp, np):
   return -(cp*nf)
 
 def Fager(cf, nf, cp, np):
-  return (cf/sqrt((cf+nf)*(cf+cp))) - (1/(2*sqrt(cf+nf)))
+  return (cf/math.sqrt((cf+nf)*(cf+cp))) - (1/(2*math.sqrt(cf+nf)))
 
 
 # OLD MEASURES (x17)
@@ -913,3 +916,8 @@ def Lex(cf, nf, cp, np):
 
   return output
 
+def Const(cf, nf, cp, np):
+  return 1.0
+
+def Rand(cf, nf, cp, np):
+  return random.random()
