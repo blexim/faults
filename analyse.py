@@ -41,13 +41,31 @@ def do_stats(test_results, metric):
 
   return stats
 
-def print_stats(stats):
-  lines = sorted([(stat, line) for (line, stat) in stats],
-                 reverse = True)
+def rank(stats):
+  return sorted([(stat, line) for (line, stat) in stats])
 
-  for (stat, line) in lines:
+def print_stats(ranked):
+  for (stat, line) in ranked:
     print "%d: %f" % (line, stat)
 
+def score(ranked, bugs):
+  seen = set([])
+  score = 0
+  last_stat = 0.0
+
+  bugs = set(l for (s, l) in ranked if l in bugs)
+
+  for (s, l) in ranked:
+    score += 1
+
+    if l in bugs:
+      seen.add(l)
+      last_stat = s
+
+    if len(seen) == len(bugs) and s != last_stat:
+      return score-1
+
+  return score
 
 if __name__ == '__main__':
   import sys
@@ -62,4 +80,7 @@ if __name__ == '__main__':
   metric = metrics_suite.suite[metric_name]
 
   stats = do_stats(test_results, metric)
-  print_stats(stats)
+  ranked = rank(stats)
+  print_stats(ranked)
+  print bugs
+  print "Score: %d" % score(ranked, bugs)
