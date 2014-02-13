@@ -1,10 +1,15 @@
-#!/usr/bin/pypy
+#!/usr/bin/python
 
 import re
 import cPickle
 import gzip
 import metrics
 import metrics_suite
+import ensemble_metric
+
+WORST=0
+BEST=1
+AVG=2
 
 def do_stats(test_results, metric):
   fail_counts = {}
@@ -48,36 +53,64 @@ def print_stats(ranked):
   for (stat, line) in ranked:
     print "%d: %f" % (line, stat)
 
-def score(ranked, bugs):
-  seen = set([])
-  score = 0
-  last_stat = 0.0
+def score(ranked, bugs, score_type=AVG):
+  ordinals = make_ordinals(ranked, score_type)
+  bug_ordinals = [ordinals[b] for b in bugs if b in ordinals]
+  return max(bug_ordinals)
 
-  bugs = set(l for (s, l) in ranked if l in bugs)
+def make_ordinals(ranked, score_type=WORST):
+  ret = {}
+  i = 0
+  n = 0
+  last_s = None
+  equal_s = []
 
   for (s, l) in ranked:
-    score += 1
+    if s != last_s:
+      if score_type == WORST:
+        ordinal = n + len(equal_s)
+      elif score_type == BEST:
+        ordinal = n
+      elif score_type == AVG:
+        ordinal = n + len(equal_s)/2
 
-    if l in bugs:
-      seen.add(l)
-      last_stat = s
+      for x in equal_s:
+        ret[x] = ordinal
 
-    if len(seen) == len(bugs) and s != last_stat:
-      return score-1
+      n += len(equal_s)
+      equal_s = []
 
-  return score
+    equal_s.append(l)
+    last_s = s
+
+  # Mop up last class...
+  if score_type == WORST:
+    ordinal = n + len(equal_s)
+  elif score_type == BEST:
+    ordinal = n
+  elif score_type == AVG:
+    ordinal = n + len(equal_s)/2
+
+  for x in equal_s:
+    ret[x] = ordinal
+
+  return ret
+
 
 if __name__ == '__main__':
   import sys
 
   features = sys.argv[1]
-  metric_name = sys.argv[2]
 
   f = gzip.GzipFile(features, 'rb')
   (bugs, test_results) = cPickle.load(f)
   f.close()
 
-  metric = metrics_suite.suite[metric_name]
+  if len(sys.argv) > 2:
+    metric_name = sys.argv[2]
+    metric = metrics_suite.suite[metric_name]
+  else:
+    metric = ensemble_metric.Ensemble
 
   stats = do_stats(test_results, metric)
   ranked = rank(stats)
