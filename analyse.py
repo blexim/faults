@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pypy
 
 import re
 import cPickle
@@ -17,7 +17,11 @@ def do_stats(test_results, metric):
   total_failures = 0
   total_successes = 0
 
-  for (correct, features) in test_results:
+  # Do we dedupe or not?...
+  #reses = set((c, tuple(f)) for (c, f) in test_results)
+  reses = test_results
+
+  for (correct, features) in reses:
     if correct:
       total_successes += 1
       target = fail_counts
@@ -53,7 +57,7 @@ def print_stats(ranked):
   for (stat, line) in ranked:
     print "%d: %f" % (line, stat)
 
-def score(ranked, bugs, score_type=AVG):
+def score(ranked, bugs, score_type=WORST):
   ordinals = make_ordinals(ranked, score_type)
   bug_ordinals = [ordinals[b] for b in bugs if b in ordinals]
   return max(bug_ordinals)
@@ -96,10 +100,10 @@ def make_ordinals(ranked, score_type=WORST):
 
   return ret
 
-def ensemble_stats(test_results, score_type=WORST):
+def ensemble_stats(test_results, metric_set, score_type=WORST):
   ensemble_ordinals = None
 
-  for m in metrics_suite.suite.values():
+  for m in metric_set:
     stats = do_stats(test_results, m)
     ordinals = make_ordinals(rank(stats), score_type)
 
@@ -125,7 +129,8 @@ if __name__ == '__main__':
     metric = metrics_suite.suite[metric_name]
     stats = do_stats(test_results, metric)
   else:
-    stats = ensemble_stats(test_results)
+    stats = ensemble_stats(test_results,
+        [metrics.Pearson3, metrics.Wong3], WORST)
 
   ranked = rank(stats)
   print_stats(ranked)
