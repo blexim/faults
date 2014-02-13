@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pypy
 
 import re
 import cPickle
