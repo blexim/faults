@@ -6,7 +6,7 @@ vectors=$3
 outdir=$4
 
 echo "Golden"
-./golden.py $golden $vectors $outdir/golden
+golden.py $golden $vectors $outdir/golden
 
 src=`basename $golden`
 
@@ -15,5 +15,5 @@ do
   v=`basename $f`
   mutated=$f/$src
   echo $v
-  ./mutated.py $golden $mutated $vectors $outdir/golden $outdir/$v
+  mutated.py $golden $mutated $vectors $outdir/golden $outdir/$v
 done
