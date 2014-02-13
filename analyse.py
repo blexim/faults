@@ -2,81 +2,41 @@
 
 import re
 import cPickle
+import gzip
+import metrics
+import metrics_suite
 
-line_taken_re = '^\s*(\d+):\s*(\d+):'
-line_taken = re.compile(line_taken_re)
-
-def coverage(gcov_data):
-  ret = {}
-
-  for l in gcov_data.split('\n'):
-    taken = line_taken.match(l)
-
-    if taken:
-      times = int(taken.group(1))
-      lineno = int(taken.group(2))
-
-      if times > 0:
-        ret[lineno] = True
-
-  ret = tuple(sorted(ret))
-  return ret
-
-def analyse_test(golden_out, mutated_out, mutated_cov, passed, failed):
-  features = coverage(mutated_cov)
-
-  if golden_out == mutated_out:
-    passed.append(features)
-  else:
-    failed.append(features)
-
-def analyse_tests(golden, mutated):
-  passed = []
-  failed = []
-
-  goldenf = open(golden)
-  (golden_outputs, golden_coverage) = cPickle.load(goldenf)
-  goldenf.close()
-
-  mutatedf = open(mutated)
-  (mutated_outputs, mutated_cov) = cPickle.load(mutatedf)
-  mutatedf.close()
-
-  for test in mutated_outputs:
-    analyse_test(golden_outputs[test], mutated_outputs[test],
-                 mutated_cov[test], passed, failed)
-
-  return (passed, failed)
-
-def do_stats(passed, failed):
+def do_stats(test_results, metric):
   fail_counts = {}
   pass_counts = {}
+  total_failures = 0
+  total_successes = 0
 
-  for features in failed:
-    for feature in features:
-      if feature not in fail_counts:
-        fail_counts[feature] = 1
+  for (correct, features) in test_results:
+    if correct:
+      total_successes += 1
+      target = fail_counts
+    else:
+      total_failures += 1
+      target = pass_counts
 
-      fail_counts[feature] += 1
+    for f in features:
+      if f not in target:
+        target[f] = 0
 
-
-  for features in passed:
-    for feature in features:
-      if feature not in pass_counts:
-        pass_counts[feature] = 1
-
-      pass_counts[feature] += 1
+      target[f] += 1
 
   stats = []
 
   for i in fail_counts:
     failures = float(fail_counts[i])
-    successes = float(pass_counts[i])
 
-    # CHANGE THIS LINE vvv
-    suspiciousness = failures**2 / successes
-    # THAT ONE ^^^
+    if i in pass_counts:
+      successes = float(pass_counts[i])
+    else:
+      successes = 0
 
+    suspiciousness = metric(failures, total_failures, successes, total_successes)
     stats.append((i, suspiciousness))
 
   return stats
@@ -92,9 +52,14 @@ def print_stats(stats):
 if __name__ == '__main__':
   import sys
 
-  golden = sys.argv[1]
-  mutated = sys.argv[2]
+  features = sys.argv[1]
+  metric_name = sys.argv[2]
 
-  results = analyse_tests(golden, mutated)
-  stats = do_stats(*results)
+  f = gzip.GzipFile(features, 'rb')
+  (bugs, test_results) = cPickle.load(f)
+  f.close()
+
+  metric = metrics_suite.suite[metric_name]
+
+  stats = do_stats(test_results, metric)
   print_stats(stats)

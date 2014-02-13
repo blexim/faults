@@ -29,7 +29,7 @@ def compile_bin(src):
 
 def run_test(bin, test):
   try:
-    output = subprocess.check_output([bin] + test.split(), shell=True)
+    output = subprocess.check_output("%s %s" % (bin, test), shell=True)
     return (output, 0)
   except subprocess.CalledProcessError as e:
     return (e.output, e.returncode)

@@ -24,7 +24,7 @@ def compile_bin(src):
 
 def run_test(bin, test, outputs):
   try:
-    output = subprocess.check_output([bin] + test.split(), shell=False)
+    output = subprocess.check_output("%s %s" % (bin, test.split), shell=True)
     outputs[test] = (output, 0)
   except subprocess.CalledProcessError as e:
     outputs[test] = (e.output, e.returncode)
