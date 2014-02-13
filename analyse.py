@@ -83,4 +83,4 @@ if __name__ == '__main__':
   ranked = rank(stats)
   print_stats(ranked)
   print bugs
-  print "Score: %d" % score(ranked, bugs)
+  print "Score: %d/%d" % (score(ranked, bugs), len(ranked))
