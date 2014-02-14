@@ -231,7 +231,7 @@ def Pearson3(cf, nf, cp, np):
 
   rho = ((cf *np ) - (nf *cp )) / math.sqrt((cf +cp )*(cf +nf )*(cp +np )*(nf +np ))
   t = cf + nf + cp + np 
-  return pow((rho/(rho+t)), 0.5)
+  return rho
 
 def PearsonHeron2(cf, nf, cp, np):
   cf = cf + c
