@@ -24,10 +24,10 @@ def do_stats(test_results, metric):
   for (correct, features) in reses:
     if correct:
       total_successes += 1
-      target = fail_counts
+      target = pass_counts
     else:
       total_failures += 1
-      target = pass_counts
+      target = fail_counts
 
     for f in features:
       if f not in target:
@@ -51,7 +51,7 @@ def do_stats(test_results, metric):
   return stats
 
 def rank(stats):
-  return sorted([(stat, line) for (line, stat) in stats])
+  return sorted([(stat, line) for (line, stat) in stats], reverse=True)
 
 def print_stats(ranked):
   for (stat, line) in ranked:
