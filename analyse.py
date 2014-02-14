@@ -45,7 +45,13 @@ def do_stats(test_results, metric):
     else:
       successes = 0
 
-    suspiciousness = metric(failures, total_failures, successes, total_successes)
+
+    cf = failures
+    nf = total_failures - cf
+    cp = successes
+    np = total_successes - cp
+
+    suspiciousness = metric(cf, nf, cp, np)
     stats.append((i, suspiciousness))
 
   return stats
