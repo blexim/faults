@@ -66,3 +66,8 @@ if __name__ == '__main__':
   scores = evaluate_on_benchmark(benchdir, metrics)
   summary = summarise(metricnames, scores)
   print_summary(summary)
+
+  summaryf = os.path.join(benchdir, 'summary')
+  f = gzip.GzipFile(summaryf, 'wb')
+  cPickle.dump(summary, f, -1)
+  f.close()
