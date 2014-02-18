@@ -69,7 +69,7 @@ def score(ranked, bugs, score_type=WORST):
   if len(bug_ordinals) > 0:
     return min(bug_ordinals)
   else:
-    return 0
+    return -1
 
 def make_ordinals(ranked, score_type=WORST):
   ret = {}
