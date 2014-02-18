@@ -17,6 +17,8 @@ def evaluate_all_metrics(featurefile, metrics):
     score = analyse.evaluate_metric(test_results, bugs, m, analyse.WORST)
     ret.append(score)
 
+  return ret
+
 def evaluate_on_benchmark(benchdir, metrics):
   benchnum = 1
   ret = []
