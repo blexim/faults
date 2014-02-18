@@ -65,7 +65,11 @@ def print_stats(ranked):
 def score(ranked, bugs, score_type=WORST):
   ordinals = make_ordinals(ranked, score_type)
   bug_ordinals = [ordinals[b] for b in bugs if b in ordinals]
-  return min(bug_ordinals)
+
+  if len(bug_ordinals) > 0:
+    return min(bug_ordinals)
+  else:
+    return 0
 
 def make_ordinals(ranked, score_type=WORST):
   ret = {}
