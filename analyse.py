@@ -105,6 +105,13 @@ def make_ordinals(ranked, score_type=WORST):
 
   return ret
 
+def evaluate_metric(test_results, bugs, metric, score_type=WORST):
+  stats = do_stats(test_results, metric)
+  ranked = rank(stats)
+  bug_ord = score(ranked, bugs, score_type)
+  percentage = bug_ord * 100.0 / len(ranked)
+  return percentage
+
 def ensemble_stats(test_results, metric_set, score_type=WORST):
   ensemble_ordinals = None
 
@@ -136,8 +143,11 @@ if __name__ == '__main__':
   else:
     stats = ensemble_stats(test_results,
         [metrics.Pearson3, metrics.Wong3], WORST)
+    metric = None
 
   ranked = rank(stats)
   print_stats(ranked)
   print bugs
   print "Score: %d/%d" % (score(ranked, bugs), len(ranked))
+
+  print evaluate_metric(test_results, bugs, metric, WORST)
