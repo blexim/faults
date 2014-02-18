@@ -38,8 +38,11 @@ def get_coverage(src):
   ret = set([])
   gcda = "%s.gcda" % src[:src.rfind('.')]
 
-  subprocess.check_output(["gcov", "-bc", gcda])
-  gcov_out = open("%s.gcov" % src)
+  try:
+    subprocess.check_output(["gcov", "-bc", gcda])
+    gcov_out = open("%s.gcov" % src)
+  except:
+    return ret
 
   for l in gcov_out:
     taken = line_taken_re.match(l)
