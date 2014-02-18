@@ -131,6 +131,9 @@ def Landsberg(cf, nf, cp, np):
   cp = cp + c
   np = np + c
 
+  if np == nf:
+    np += c
+
   return (np/(np-nf)) - (cp/(cp+cf))
 
 
