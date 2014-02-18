@@ -5,7 +5,6 @@ import cPickle
 import gzip
 import metrics
 import metrics_suite
-import ensemble_metric
 
 WORST=0
 BEST=1
