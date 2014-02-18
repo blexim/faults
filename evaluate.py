@@ -32,20 +32,25 @@ def evaluate_on_benchmark(benchdir, metrics):
   return ret
 
 def summarise(metricnames, res):
-  ret = {m: 0.0 for m in metricnames}
+  ret = {}
 
-  for r in res:
-    for (m, x) in zip(metricnames, r):
-      ret[m] += x
-
-  for m in metricnames:
-    ret[m] /= len(res)
+  for i in xrange(len(metricnames)):
+    m = metricnames[i]
+    ret[m] = [r[i] for r in res if r[i] > 0]
 
   return ret
 
 def print_summary(summary):
-  for (m, x) in summary.iteritems():
-    print "%s: %.02f%%" % (m, x)
+  res = []
+
+  for (m, r) in summary.iteritems():
+    mean = (0.0 + sum(r)) / len(r)
+    res.append((mean, m))
+
+  res.sort()
+
+  for (x, m) in res:
+    print "%s: %.02f" % (m, x)
 
 if __name__ == '__main__':
   import sys
