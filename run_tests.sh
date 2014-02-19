@@ -15,5 +15,6 @@ do
   v=`basename $f`
   mutated=$f/$src
   echo $v
+  echo "mutated.py $golden $mutated $vectors $outdir/golden $outdir/$v"
   mutated.py $golden $mutated $vectors $outdir/golden $outdir/$v
 done

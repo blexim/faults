@@ -113,6 +113,10 @@ def evaluate_metric(test_results, bugs, metric, score_type=WORST):
   stats = do_stats(test_results, metric)
   ranked = rank(stats)
   bug_ord = score(ranked, bugs, score_type)
+
+  if len(ranked) == 0:
+    return -1
+
   percentage = bug_ord * 100.0 / len(ranked)
   return percentage
 

@@ -42,7 +42,7 @@ def get_coverage(src):
     subprocess.check_output(["gcov", "-bc", gcda])
     gcov_out = open("%s.gcov" % src)
   except:
-    return ret
+    return set([])
 
   for l in gcov_out:
     taken = line_taken_re.match(l)
@@ -55,17 +55,11 @@ def get_coverage(src):
         ret.add(lineno)
 
   gcov_out.close()
-  os.unlink(gcda)
 
   return ret
 
 def run_tests(src, bin, tests, golden_outputs):
   ret = []
-
-  try:
-    os.unlink("%s.gcda" % src[:src.rfind('.')])
-  except:
-    pass
 
   i = 0
   for l in tests:
@@ -77,10 +71,20 @@ def run_tests(src, bin, tests, golden_outputs):
       continue
 
     expected = golden_outputs[l]
+
+    try:
+      os.unlink("%s.gcda" % src[:src.rfind('.')])
+    except:
+      pass
+
     res = run_test(bin, l)
     correct = (res == expected)
 
-    coverage = get_coverage(src)
+    if res[1] >= 0:
+      coverage = get_coverage(src)
+    else:
+      # terminated by a signal -- probably segfault...
+      coverage = set([])
 
     ret.append((correct, coverage))
 
