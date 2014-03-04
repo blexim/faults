@@ -924,3 +924,163 @@ def Const(cf, nf, cp, np):
 
 def Rand(cf, nf, cp, np):
   return random.random()
+# more Association metrics x13 (+ 1 helper function Prob_not_C_and_not_E)
+
+def PhiCoefficient(cf, nf, cp, np):
+  p = Prob_C(cf, nf, cp, np) * Prob_E(cf, nf, cp, np)
+  a = 1-Prob_C(cf, nf, cp, np)
+  b = 1-Prob_E(cf, nf, cp, np)
+  return (Prob_C_and_E(cf, nf, cp, np) - p) / math.sqrt(p*a*b)
+
+def Kappa(cf, nf, cp, np):
+  p = Prob_C(cf, nf, cp, np) * Prob_E(cf, nf, cp, np);
+  a = Prob_not_C(cf, nf, cp, np) * Prob_not_E(cf, nf, cp, np);
+  return ((Prob_C_and_E(cf, nf, cp, np) + Prob_not_C_and_not_E(cf, nf, cp, np)) - p - a) / (1-p-a)
+
+def MI(cf, nf, cp, np):
+  top = Prob_C_and_E(cf, nf, cp, np) * math.log10(Prob_C_and_E(cf, nf, cp, np) / (Prob_C(cf, nf, cp, np) * Prob_E(cf, nf, cp, np)));
+  bottom = -Prob_C(cf, nf, cp, np) - math.log10(Prob_C(cf, nf, cp, np)) - Prob_E(cf, nf, cp, np) - math.log10(Prob_E(cf, nf, cp, np));
+  return top / bottom
+
+def JMeasure(cf, nf, cp, np):
+  t = cf+nf+cp+np
+  a = Prob_C_and_E(cf, nf, cp, np) * math.log10(Prob_E_given_C(cf, nf, cp, np) / Prob_E(cf, nf, cp, np))
+  b = cp/t * math.log10(Prob_not_E_given_C(cf, nf, cp, np) / Prob_not_E(cf, nf, cp, np))
+  c = Prob_C_and_E(cf, nf, cp, np) * math.log10(Prob_C_given_E(cf, nf, cp, np) / Prob_C(cf, nf, cp, np))
+  d = nf/t * math.log10(Prob_not_C_given_E(cf, nf, cp, np) / Prob_not_C(cf, nf, cp, np))
+
+  output = 0
+
+  if a+b < c+d:
+    output = c+d
+
+  if a+b >= c+d:
+    output = a+b
+
+  return output
+
+def GiniIndex(cf, nf, cp, np):
+  a = Prob_C(cf, nf, cp, np) * ((Prob_E_given_C(cf, nf, cp, np)*Prob_E_given_C(cf, nf, cp, np)) + (Prob_not_E_given_C(cf, nf, cp, np)*Prob_not_E_given_C(cf, nf, cp, np)))
+  b = Prob_not_C(cf, nf, cp, np) * ((Prob_E_given_not_C(cf, nf, cp, np)*Prob_E_given_not_C(cf, nf, cp, np))) + (Prob_not_E_given_not_C(cf, nf, cp, np) * Prob_not_E_given_not_C(cf, nf, cp, np))
+  c = (Prob_E(cf, nf, cp, np)*Prob_E(cf, nf, cp, np)) - (Prob_not_E(cf, nf, cp, np)*Prob_not_E(cf, nf, cp, np))
+  d = (a + b) - c
+
+  e = Prob_E(cf, nf, cp, np) * ((Prob_C_given_E(cf, nf, cp, np) * Prob_C_given_E(cf, nf, cp, np)) + (Prob_not_C_given_E(cf, nf, cp, np) * Prob_not_C_given_E(cf, nf, cp, np)))
+  f = Prob_not_E(cf, nf, cp, np) * ((Prob_C_given_not_E(cf, nf, cp, np)*Prob_C_given_not_E(cf, nf, cp, np))) + (Prob_not_C_given_not_E(cf, nf, cp, np) * Prob_not_C_given_not_E(cf, nf, cp, np))
+  g = (Prob_C(cf, nf, cp, np)*Prob_E(cf, nf, cp, np)) - (Prob_not_C(cf, nf, cp, np)*Prob_not_E(cf, nf, cp, np))
+  h = (e + f) - g
+
+  output = 0
+
+  if d < h:
+    output = h
+
+  if d >= h:
+    output = d
+
+  return output
+
+def Confidence(cf, nf, cp, np):
+  a = Prob_C_given_E(cf, nf, cp, np)
+  b = Prob_E_given_C(cf, nf, cp, np)
+
+  output = 0
+
+  if a < b:
+    output = b
+
+  if a >= a:
+    output = a
+
+  return output
+
+def Laplace(cf, nf, cp, np):
+  t = cf + nf + cp + np
+  a = ((t * Prob_C_and_E(cf, nf, cp, np)) + 1) / ((t * Prob_C(cf, nf, cp, np)) + 2)
+  b = ((t * Prob_C_and_E(cf, nf, cp, np)) + 1) / ((t * Prob_E(cf, nf, cp, np)) + 2)
+
+  output = 0
+
+  if a < b:
+    output = b
+
+  if a >= a:
+    output = a
+
+  return output
+
+def Conviction(double cf, double nf, double cp, double np):
+  t = cf + nf + cp + np
+  a = Prob_C(cf, nf, cp, np) * Prob_not_E(cf, nf, cp, np)
+  b = cp / t
+  c = Prob_E(cf, nf, cp, np) * Prob_not_C(cf, nf, cp, np)
+  d = nf / t
+
+  output = 0
+
+  if a/b < c/d:
+    output = c/d
+
+  if a/b >= c/d:
+    output = a/b
+
+  return output
+
+def Interest(double cf, double nf, double cp, double np):
+  return  Prob_C_and_E(cf, nf, cp, np) / (Prob_C(cf, nf, cp, np) * Prob_E(cf, nf, cp, np))
+
+def Certainty(double cf, double nf, double cp, double np):
+  a = (Prob_E_given_C(cf, nf, cp, np) -  Prob_E(cf, nf, cp, np)) / (1 -  Prob_E(cf, nf, cp, np))
+  b = (Prob_C_given_E(cf, nf, cp, np) -  Prob_C(cf, nf, cp, np)) / (1 -  Prob_C(cf, nf, cp, np))
+
+  output = 0
+
+  if a < b:
+    output = b
+
+  if a >= a:
+    output = a
+
+  return output
+
+def AddedValue(double cf, double nf, double cp, double np):
+  a = (Prob_E_given_C(cf, nf, cp, np) -  Prob_E(cf, nf, cp, np))
+  b = (Prob_C_given_E(cf, nf, cp, np) -  Prob_C(cf, nf, cp, np))
+
+  output = 0
+
+  if a < b:
+    output = b
+
+  if a >= a:
+    output = a
+
+  return output
+
+Prob_not_C_and_not_E(cf, nf, cp, np):
+  return (np + np) / (cf+nf+cp+np)
+
+def CollectiveStrength(double cf, double nf, double cp, double np):
+  a = Prob_C_and_E(cf, nf, cp, np) + Prob_not_C_and_not_E(cf, nf, cp, np)
+  b = (Prob_C(cf, nf, cp, np) * Prob_E(cf, nf, cp, np)) + (Prob_not_C(cf, nf, cp, np) * Prob_not_E(cf, nf, cp, np)) 
+  c = 1 - (Prob_C(cf, nf, cp, np) * Prob_E(cf, nf, cp, np)) - (Prob_not_C(cf, nf, cp, np) * Prob_not_E(cf, nf, cp, np)) 
+  d = 1 - (Prob_C_and_E(cf, nf, cp, np) - Prob_not_C_and_not_E(cf, nf, cp, np))
+
+  return (a/b) * (c/d)
+
+
+def Klosgen(double cf, double nf, double cp, double np):
+  a = sqrt(Prob_C_and_E(cf, nf, cp, np))
+  b = (Prob_E_given_C(cf, nf, cp, np) -  Prob_E(cf, nf, cp, np))
+  c = (Prob_C_given_E(cf, nf, cp, np) -  Prob_C(cf, nf, cp, np))
+
+  output = 0
+
+  if c < b:
+    output = b
+
+  if c >= b:
+    output = c
+
+  return a * output
+
