@@ -121,21 +121,6 @@ def evaluate_metric(test_results, bugs, metric, score_type=WORST):
 
   return (len(ranked), ret)
 
-def ensemble_stats(test_results, metric_set, score_type=WORST):
-  ensemble_ordinals = None
-
-  for m in metric_set:
-    stats = do_stats(test_results, m)
-    ordinals = make_ordinals(rank(stats), score_type)
-
-    if ensemble_ordinals is None:
-      ensemble_ordinals = ordinals
-    else:
-      for l in ordinals:
-        ensemble_ordinals[l] += ordinals[l]
-
-  return [(l, ensemble_ordinals[l]) for l in ensemble_ordinals]
-
 if __name__ == '__main__':
   import sys
 
@@ -145,14 +130,9 @@ if __name__ == '__main__':
   (bugs, test_results) = cPickle.load(f)
   f.close()
 
-  if len(sys.argv) > 2:
-    metric_name = sys.argv[2]
-    metric = metrics_suite.suite[metric_name]
-    stats = do_stats(test_results, metric)
-  else:
-    stats = ensemble_stats(test_results,
-        [metrics.Pearson3, metrics.Wong3], WORST)
-    metric = None
+  metric_name = sys.argv[2]
+  metric = metrics_suite.suite[metric_name]
+  stats = do_stats(test_results, metric)
 
   ranked = rank(stats)
   print_stats(ranked)
