@@ -116,7 +116,7 @@ def evaluate_metric(test_results, bugs, metric, score_type=WORST):
   if len(ranked) == 0:
     return (0, (-1, -1, -1))
 
-  ret = (score(ranked, bugs, score_type) for score_type in
+  ret = tuple(score(ranked, bugs, score_type) for score_type in
       (WORST, BEST, AVG))
 
   return (len(ranked), ret)

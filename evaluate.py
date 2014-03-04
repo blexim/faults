@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pypy
 
 import metrics_suite
 import analyse
@@ -36,7 +36,7 @@ def summarise(metricnames, res):
 
   for i in xrange(len(metricnames)):
     m = metricnames[i]
-    ret[m] = [r[i] for r in res if r[i] > 0]
+    ret[m] = [float(r[i][1][0]) / r[i][0] for r in res if r[i][0] > 0 and r[i][1][0] > 0]
 
   return ret
 
@@ -44,8 +44,7 @@ def print_summary(summary):
   res = []
 
   for (m, rs) in summary.iteritems():
-    (l, r) = rs[0]
-    mean = (0.0 + sum(r)) / l
+    mean = (0.0 + sum(rs)) / len(rs)
     res.append((mean, m))
 
   res.sort()
@@ -72,7 +71,7 @@ if __name__ == '__main__':
 
   evaluatef = os.path.join(benchdir, 'evaluation')
   f = gzip.GzipFile(evaluatef, 'wb')
-  cPickle.dump(evaluation, f, -1)
+  cPickle.dump(scores, f, -1)
   f.close()
 
   summaryf = os.path.join(benchdir, 'summary')
