@@ -112,13 +112,14 @@ def make_ordinals(ranked, score_type=WORST):
 def evaluate_metric(test_results, bugs, metric, score_type=WORST):
   stats = do_stats(test_results, metric)
   ranked = rank(stats)
-  bug_ord = score(ranked, bugs, score_type)
 
   if len(ranked) == 0:
-    return -1
+    return (0, (-1, -1, -1))
 
-  percentage = bug_ord * 100.0 / len(ranked)
-  return percentage
+  ret = (score(ranked, bugs, score_type) for score_type in
+      (WORST, BEST, AVG))
+
+  return (len(ranked), ret)
 
 def ensemble_stats(test_results, metric_set, score_type=WORST):
   ensemble_ordinals = None

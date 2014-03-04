@@ -84,7 +84,5 @@ suite = {
   'CBIlog': metrics.CBIlog,
   'Zoltar': metrics.Zoltar,
   'Lex': metrics.Lex,
-  'Const': metrics.Const,
-  'Rand': metrics.Rand,
 
 }

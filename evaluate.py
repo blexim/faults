@@ -43,7 +43,8 @@ def summarise(metricnames, res):
 def print_summary(summary):
   res = []
 
-  for (m, r) in summary.iteritems():
+  for (m, (l, rs)) in summary.iteritems():
+    r = rs[0]
     mean = (0.0 + sum(r)) / len(r)
     res.append((mean, m))
 
@@ -66,6 +67,13 @@ if __name__ == '__main__':
   scores = evaluate_on_benchmark(benchdir, metrics)
   summary = summarise(metricnames, scores)
   print_summary(summary)
+
+  evaluation = (metricnames, scores)
+
+  evaluatef = os.path.join(benchdir, 'evaluation')
+  f = gzip.GzipFile(evaluatef, 'wb')
+  cPickle.dump(evaluation, f, -1)
+  f.close()
 
   summaryf = os.path.join(benchdir, 'summary')
   f = gzip.GzipFile(summaryf, 'wb')
