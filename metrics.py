@@ -15,48 +15,58 @@ random.seed()
 
 # constant
 c = 0.5
+p = 0.0001
 
 #  Probabilistic helper functions. These functions are used later on to ease the verbosity of definitions. 
 #  They are NOT to be used as suspiciousness measures themselves
 
 def Prob_C(cf, nf, cp, np):
-  return (cf + cp) / (cf + nf + cp + np)
+  return max((cf + cp) / (cf + nf + cp + np), p)
 
 def Prob_E(cf, nf, cp, np):
-  return (cf + nf) / (cf + nf + cp + np)
+  return max((cf + nf) / (cf + nf + cp + np), p)
 
 def Prob_not_C(cf, nf, cp, np):
-  return (np + nf) / (cf + nf + cp + np)
+  return max((np + nf) / (cf + nf + cp + np), p)
 
 def Prob_not_E(cf, nf, cp, np):
-  return (np + cp) / (cf + nf + cp + np)
+  return max((np + cp) / (cf + nf + cp + np), p)
 
 def Prob_E_given_C(cf, nf, cp, np):
-  return (cf / (cf + cp))
+  return max((cf / (cf + cp)), p)
 
 def Prob_E_given_not_C(cf, nf, cp, np):
-  return (nf / (nf + np))
+  if nf + np == 0:
+    return 0.0
+
+  return max((nf / (nf + np)), p)
 
 def Prob_not_E_given_C(cf, nf, cp, np):
-  return (cp / (cf + cp))
+  return max((cp / (cf + cp)), p)
 
 def Prob_not_E_given_not_C(cf, nf, cp, np):
-  return (np / (nf + np))
+  if nf + np == 0:
+    return 0.0
+
+  return max((np / (nf + np)), p)
 
 def Prob_C_given_E(cf, nf, cp, np):
-  return (cf / (cf + nf))
+  return max((cf / (cf + nf)), p)
 
 def Prob_not_C_given_E(cf, nf, cp, np):
-  return (nf / (cf + nf))
+  return max((nf / (cf + nf)), p)
 
 def Prob_C_given_not_E(cf, nf, cp, np):
-  return (cp / (cp + np))
+  return max((cp / (cp + np)), p)
 
 def Prob_not_C_given_not_E(cf, nf, cp, np):
-  return (np / (cp + np))
+  return max((np / (cp + np)), p)
 
 def Prob_C_and_E(cf, nf, cp, np):
-  return (cf / (cf + nf + cp + np))
+  return max((cf / (cf + nf + cp + np)), p)
+
+def Prob_not_C_and_not_E(cf, nf, cp, np):
+  return max((np + np) / (cf+nf+cp+np), 0.001)
 
 
 # CAUSAL MEASURES (x9)
@@ -930,6 +940,10 @@ def PhiCoefficient(cf, nf, cp, np):
   p = Prob_C(cf, nf, cp, np) * Prob_E(cf, nf, cp, np)
   a = 1-Prob_C(cf, nf, cp, np)
   b = 1-Prob_E(cf, nf, cp, np)
+
+  if p*a*b == 0:
+    return 1000
+
   return (Prob_C_and_E(cf, nf, cp, np) - p) / math.sqrt(p*a*b)
 
 def Kappa(cf, nf, cp, np):
@@ -945,9 +959,12 @@ def MI(cf, nf, cp, np):
 def JMeasure(cf, nf, cp, np):
   t = cf+nf+cp+np
   a = Prob_C_and_E(cf, nf, cp, np) * math.log10(Prob_E_given_C(cf, nf, cp, np) / Prob_E(cf, nf, cp, np))
+  p_notc_e = Prob_not_C_given_E(cf, nf, cp, np)
+  p_notc = Prob_not_C(cf, nf, cp, np)
+
   b = cp/t * math.log10(Prob_not_E_given_C(cf, nf, cp, np) / Prob_not_E(cf, nf, cp, np))
   c = Prob_C_and_E(cf, nf, cp, np) * math.log10(Prob_C_given_E(cf, nf, cp, np) / Prob_C(cf, nf, cp, np))
-  d = nf/t * math.log10(Prob_not_C_given_E(cf, nf, cp, np) / Prob_not_C(cf, nf, cp, np))
+  d = nf/t * math.log10(p_notc_e / p_notc)
 
   output = 0
 
@@ -1009,12 +1026,15 @@ def Laplace(cf, nf, cp, np):
 
   return output
 
-def Conviction(double cf, double nf, double cp, double np):
+def Conviction(cf, nf, cp, np):
   t = cf + nf + cp + np
   a = Prob_C(cf, nf, cp, np) * Prob_not_E(cf, nf, cp, np)
   b = cp / t
   c = Prob_E(cf, nf, cp, np) * Prob_not_C(cf, nf, cp, np)
   d = nf / t
+
+  if b == 0 or d == 0:
+    return 0.0
 
   output = 0
 
@@ -1026,10 +1046,13 @@ def Conviction(double cf, double nf, double cp, double np):
 
   return output
 
-def Interest(double cf, double nf, double cp, double np):
+def Interest(cf, nf, cp, np):
   return  Prob_C_and_E(cf, nf, cp, np) / (Prob_C(cf, nf, cp, np) * Prob_E(cf, nf, cp, np))
 
-def Certainty(double cf, double nf, double cp, double np):
+def Certainty(cf, nf, cp, np):
+  if Prob_E(cf, nf, cp, np) == 1.0 or Prob_C(cf, nf, cp, np) == 1.0:
+    return 10000
+
   a = (Prob_E_given_C(cf, nf, cp, np) -  Prob_E(cf, nf, cp, np)) / (1 -  Prob_E(cf, nf, cp, np))
   b = (Prob_C_given_E(cf, nf, cp, np) -  Prob_C(cf, nf, cp, np)) / (1 -  Prob_C(cf, nf, cp, np))
 
@@ -1037,13 +1060,12 @@ def Certainty(double cf, double nf, double cp, double np):
 
   if a < b:
     output = b
-
-  if a >= a:
+  else:
     output = a
 
   return output
 
-def AddedValue(double cf, double nf, double cp, double np):
+def AddedValue(cf, nf, cp, np):
   a = (Prob_E_given_C(cf, nf, cp, np) -  Prob_E(cf, nf, cp, np))
   b = (Prob_C_given_E(cf, nf, cp, np) -  Prob_C(cf, nf, cp, np))
 
@@ -1057,10 +1079,8 @@ def AddedValue(double cf, double nf, double cp, double np):
 
   return output
 
-Prob_not_C_and_not_E(cf, nf, cp, np):
-  return (np + np) / (cf+nf+cp+np)
 
-def CollectiveStrength(double cf, double nf, double cp, double np):
+def CollectiveStrength(cf, nf, cp, np):
   a = Prob_C_and_E(cf, nf, cp, np) + Prob_not_C_and_not_E(cf, nf, cp, np)
   b = (Prob_C(cf, nf, cp, np) * Prob_E(cf, nf, cp, np)) + (Prob_not_C(cf, nf, cp, np) * Prob_not_E(cf, nf, cp, np)) 
   c = 1 - (Prob_C(cf, nf, cp, np) * Prob_E(cf, nf, cp, np)) - (Prob_not_C(cf, nf, cp, np) * Prob_not_E(cf, nf, cp, np)) 
@@ -1069,8 +1089,8 @@ def CollectiveStrength(double cf, double nf, double cp, double np):
   return (a/b) * (c/d)
 
 
-def Klosgen(double cf, double nf, double cp, double np):
-  a = sqrt(Prob_C_and_E(cf, nf, cp, np))
+def Klosgen(cf, nf, cp, np):
+  a = math.sqrt(Prob_C_and_E(cf, nf, cp, np))
   b = (Prob_E_given_C(cf, nf, cp, np) -  Prob_E(cf, nf, cp, np))
   c = (Prob_C_given_E(cf, nf, cp, np) -  Prob_C(cf, nf, cp, np))
 

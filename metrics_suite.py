@@ -4,7 +4,6 @@
 import metrics
 
 suite = {
-  'Prob_C_and_E': metrics.Prob_C_and_E,
   'Suppes': metrics.Suppes,
   'Lewis': metrics.Lewis,
   'Good': metrics.Good,

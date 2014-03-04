@@ -43,9 +43,9 @@ def summarise(metricnames, res):
 def print_summary(summary):
   res = []
 
-  for (m, (l, rs)) in summary.iteritems():
-    r = rs[0]
-    mean = (0.0 + sum(r)) / len(r)
+  for (m, rs) in summary.iteritems():
+    (l, r) = rs[0]
+    mean = (0.0 + sum(r)) / l
     res.append((mean, m))
 
   res.sort()

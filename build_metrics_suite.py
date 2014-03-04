@@ -16,7 +16,7 @@ import metrics
 suite = {
 """)
 
-for l in f.readlines()[56:]:
+for l in f.readlines()[63:]:
   m = measure_re.match(l)
 
   if m:
