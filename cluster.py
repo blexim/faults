@@ -5,18 +5,22 @@ import cPickle
 import os
 import numpy
 import scipy.cluster.hierarchy as hcluster
+import scipy.stats
+
 import metrics_suite
 
-thresh = 1.2
-metricname = 'euclidean'
+thresh = 1.1
+metricname = 'cityblock'
+
+pthresh = 0.01
 
 def collect(metricnames, scores, res, cumulative):
   for s in scores:
     for (m, (l, (sworst, sbest, savg))) in zip(metricnames, s):
       if l > 0:
-        normalised = float(savg) / l
+        normalised = float(sworst) / l
       else:
-        normalised = 0
+        continue
 
       if normalised < 0:
         normalised = 0
@@ -75,6 +79,46 @@ def print_clusters(clusters, cumulative):
 
     print ""
 
+def compare(m1, m2):
+  (T, p) = scipy.stats.wilcoxon(m1, m2)
+
+  if p <= pthresh:
+    if sum(m1) > sum(m2):
+      return p
+    else:
+      return -p
+
+  return 0
+
+def find_better(evals, m):
+  baseline = evals[m]
+  better = []
+  worse = []
+  same = []
+
+  for (k, vs) in evals.iteritems():
+    diff = compare(baseline, vs)
+
+    if diff == 0:
+      same.append(k)
+    elif diff > 0:
+      better.append(k)
+    else:
+      worse.append(k)
+
+  print "BETTER than %s:" % m
+  for n in better:
+    print n
+
+
+  print "\nWORSE than %s:" % m
+  for n in worse:
+    print n
+
+  print "\nTHE SAME as %s:" % m
+  for n in same:
+    print n
+
 if __name__ == '__main__':
   import sys
 
@@ -91,3 +135,5 @@ if __name__ == '__main__':
   (evals, cumulative) = load_evaluations(evaldir, metricnames)
   clusters = cluster(evals)
   print_clusters(clusters, cumulative)
+
+  find_better(evals, "Rand")
