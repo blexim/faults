@@ -48,7 +48,7 @@ def print_table(benchnames, res, tablef):
     tablef.write(name.replace('_', ' '))
 
     for s in stats:
-      tablef.write("& %.02f" % s)
+      tablef.write("& %.02f" % (s * 100))
 
     tablef.write(r"\\")
     tablef.write("\n")
