@@ -6,6 +6,8 @@ import os
 import gzip
 import cPickle
 
+lines = -1
+
 def evaluate_all_metrics(featurefile, metrics):
   f = gzip.GzipFile(featurefile, 'rb')
   (bugs, test_results) = cPickle.load(f)
@@ -14,8 +16,12 @@ def evaluate_all_metrics(featurefile, metrics):
   ret = []
 
   for m in metrics:
-    score = analyse.evaluate_metric(test_results, bugs, m, analyse.WORST)
-    ret.append(score)
+    (l, score) = analyse.evaluate_metric(test_results, bugs, m, analyse.AVG)
+
+    if lines > 0:
+      l = lines
+
+    ret.append((l, score))
 
   return ret
 
@@ -24,10 +30,15 @@ def evaluate_on_benchmark(benchdir, metrics):
   ret = []
 
   while os.path.isfile(os.path.join(benchdir, 'v%d' % benchnum)):
-    f = os.path.join(benchdir, 'v%d' % benchnum)
-    print f
-    ret.append(evaluate_all_metrics(f, metrics))
+    try:
+      f = os.path.join(benchdir, 'v%d' % benchnum)
+      print f
+      ret.append(evaluate_all_metrics(f, metrics))
+    except:
+      pass
+
     benchnum += 1
+
 
   return ret
 
@@ -36,7 +47,12 @@ def summarise(metricnames, res):
 
   for i in xrange(len(metricnames)):
     m = metricnames[i]
-    ret[m] = [float(r[i][1][0]) / r[i][0] for r in res if r[i][0] > 0 and r[i][1][0] > 0]
+    if lines < 0:
+      l = r[i][0]
+    else:
+      l = lines
+
+    ret[m] = [float(r[i][1][2]) / l for r in res if r[i][0] > 0 and r[i][1][2] > 0]
 
   return ret
 
@@ -44,12 +60,16 @@ def print_summary(summary):
   res = []
 
   for (m, rs) in summary.iteritems():
+    if not rs:
+      continue
+
     mean = (0.0 + sum(rs)) / len(rs)
     res.append((mean, m))
 
   res.sort()
 
   for (x, m) in res:
+    x *= 100
     print "%s: %.02f" % (m, x)
 
 if __name__ == '__main__':
@@ -58,6 +78,9 @@ if __name__ == '__main__':
   benchdir = sys.argv[1]
   metrics = []
   metricnames = []
+
+  if len(sys.argv) > 2:
+    lines = int(sys.argv[2])
 
   for (n, m) in metrics_suite.suite.iteritems():
     metricnames.append(n)

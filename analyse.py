@@ -10,6 +10,8 @@ WORST=0
 BEST=1
 AVG=2
 
+lines = -1
+
 def do_stats(test_results, metric):
   fail_counts = {}
   pass_counts = {}
@@ -19,8 +21,14 @@ def do_stats(test_results, metric):
   # Do we dedupe or not?...
   #reses = set((c, tuple(f)) for (c, f) in test_results)
   reses = test_results
+  i = -1
 
   for (correct, features) in reses:
+    i += 1
+
+    if not features:
+      continue
+
     if correct:
       total_successes += 1
       target = pass_counts
@@ -35,20 +43,26 @@ def do_stats(test_results, metric):
       target[f] += 1
 
   stats = []
+  executed = set(fail_counts.keys())
 
-  for i in fail_counts:
-    failures = float(fail_counts[i])
+  print "Failed: %d, succeeded: %d" % (total_failures, total_successes)
+
+  for i in executed:
+    if i in fail_counts:
+      failures = float(fail_counts[i])
+    else:
+      failures = 0.0
 
     if i in pass_counts:
       successes = float(pass_counts[i])
     else:
-      successes = 0
+      successes = 0.0
 
 
-    cf = failures
-    nf = total_failures - cf
-    cp = successes
-    np = total_successes - cp
+    cf = float(failures)
+    nf = float(total_failures - cf)
+    cp = float(successes)
+    np = float(total_successes - cp)
 
     suspiciousness = metric(cf, nf, cp, np)
     stats.append((i, suspiciousness))
@@ -137,6 +151,6 @@ if __name__ == '__main__':
   ranked = rank(stats)
   print_stats(ranked)
   print bugs
-  print "Score: %d/%d" % (score(ranked, bugs), len(ranked))
+  print "Score: %d/%d" % (score(ranked, bugs, AVG), len(ranked))
 
   print evaluate_metric(test_results, bugs, metric, WORST)

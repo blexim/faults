@@ -4,6 +4,20 @@
 import metrics
 
 suite = {
+  'Prob_C': metrics.Prob_C,
+  'Prob_E': metrics.Prob_E,
+  'Prob_not_C': metrics.Prob_not_C,
+  'Prob_not_E': metrics.Prob_not_E,
+  'Prob_E_given_C': metrics.Prob_E_given_C,
+  'Prob_E_given_not_C': metrics.Prob_E_given_not_C,
+  'Prob_not_E_given_C': metrics.Prob_not_E_given_C,
+  'Prob_not_E_given_not_C': metrics.Prob_not_E_given_not_C,
+  'Prob_C_given_E': metrics.Prob_C_given_E,
+  'Prob_not_C_given_E': metrics.Prob_not_C_given_E,
+  'Prob_C_given_not_E': metrics.Prob_C_given_not_E,
+  'Prob_not_C_given_not_E': metrics.Prob_not_C_given_not_E,
+  'Prob_C_and_E': metrics.Prob_C_and_E,
+  'Prob_not_C_and_not_E': metrics.Prob_not_C_and_not_E,
   'Suppes': metrics.Suppes,
   'Lewis': metrics.Lewis,
   'Good': metrics.Good,
@@ -98,5 +112,7 @@ suite = {
   'AddedValue': metrics.AddedValue,
   'CollectiveStrength': metrics.CollectiveStrength,
   'Klosgen': metrics.Klosgen,
+  'Just_cf': metrics.Just_cf,
+  'Just_nf': metrics.Just_nf,
 
 }

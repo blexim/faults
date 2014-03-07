@@ -2,6 +2,7 @@
 
 import re
 import cPickle
+import gzip
 
 line_taken_re = '^\s*(\d+):\s*(\d+):'
 line_taken = re.compile(line_taken_re)
@@ -33,11 +34,11 @@ def analyse_tests(golden, mutated):
   passed = []
   failed = []
 
-  goldenf = open(golden)
+  goldenf = gzip.GzipFile(golden, 'rb')
   (golden_outputs, golden_coverage) = cPickle.load(goldenf)
   goldenf.close()
 
-  mutatedf = open(mutated)
+  mutatedf = gzip.GzipFile(mutated, 'rb')
   (mutated_outputs, mutated_cov) = cPickle.load(mutatedf)
   mutatedf.close()
 
@@ -60,6 +61,19 @@ def dump_matrix(lines, vectors, f):
       else:
         f.write("0 ")
     f.write("\n")
+
+def count(lines, vectors, f):
+  counts = [0 for l in lines]
+
+  f.write("\n")
+
+  for features in vectors:
+    for l in lines:
+      if l in features:
+        counts[l] += 1
+
+  for c in counts:
+    f.write("%d " % c)
 
 if __name__ == '__main__':
   import sys
@@ -85,4 +99,5 @@ if __name__ == '__main__':
 
   f = open(failedfile, 'w')
   dump_matrix(lines, failed, f)
+  count(lines, failed, f)
   f.close()

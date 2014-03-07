@@ -13,17 +13,18 @@ thresh = 1.1
 metricname = 'cityblock'
 
 pthresh = 0.01
+lines = 173
 
 def collect(metricnames, scores, res, cumulative):
   for s in scores:
     for (m, (l, (sworst, sbest, savg))) in zip(metricnames, s):
       if l > 0:
-        normalised = float(savg) / l
+        normalised = float(savg) / lines
       else:
         continue
 
       if normalised < 0:
-        normalised = 0
+        continue
 
       if m not in res:
         res[m] = [normalised]
@@ -38,46 +39,14 @@ def load_evaluations(evaldir, metricnames):
   cumulative = {}
   benchnames = []
 
-  for d in os.listdir(evaldir):
-    benchnames.append(d)
+  fname = os.path.join(evaldir, 'evaluation')
+  summaryf = gzip.GzipFile(fname, 'rb')
+  scores = cPickle.load(summaryf)
+  summaryf.close()
 
-    fname = os.path.join(evaldir, d, 'evaluation')
-    summaryf = gzip.GzipFile(fname, 'rb')
-    scores = cPickle.load(summaryf)
-    summaryf.close()
-
-    collect(metricnames, scores, res, cumulative)
+  collect(metricnames, scores, res, cumulative)
 
   return (res, cumulative)
-
-def cluster(res):
-  data = res.values()
-
-  clusters = hcluster.fclusterdata(data, thresh, metric=metricname)
-
-  clustered = {}
-
-  for (m, c) in zip(res.keys(), clusters):
-    if c not in clustered:
-      clustered[c] = [m]
-    else:
-      clustered[c].append(m)
-
-  return clustered.values()
-
-def print_clusters(clusters, cumulative):
-  i = 1
-
-  for c in clusters:
-    print "Cluster %d:" % i
-    i += 1
-
-    for m in c:
-      (n, cum) = cumulative[m]
-      score = (cum / n) * 100.0
-      print "%s: %.02f" % (m, score)
-
-    print ""
 
 def compare(m1, m2):
   (T, p) = scipy.stats.wilcoxon(m1, m2)
@@ -90,9 +59,6 @@ def compare(m1, m2):
 
   return 0
 
-def mean(xs):
-  return sum(xs) / len(xs)
-
 def find_better(evals, m):
   baseline = evals[m]
   better = []
@@ -101,27 +67,31 @@ def find_better(evals, m):
 
   for (k, vs) in evals.iteritems():
     diff = compare(baseline, vs)
-    x = mean(vs) * 100
 
     if diff == 0:
-      same.append((x, k))
+      same.append(k)
     elif diff > 0:
-      better.append((x, k))
+      better.append(k)
     else:
-      worse.append((x, k))
+      worse.append(k)
 
   print "BETTER than %s:" % m
-  for (x, n) in sorted(better):
-    print "%s %.02f%%" % (n, x)
+  for n in better:
+    print n
 
 
   print "\nWORSE than %s:" % m
-  for (x, n) in sorted(worse):
-    print "%s %.02f%%" % (n, x)
+  for n in worse:
+    print n
 
   print "\nTHE SAME as %s:" % m
-  for (x, n) in sorted(same):
-    print "%s %.02f%%" % (n, x)
+  for n in same:
+    print n
+
+def print_res(cumulative):
+  for (m, (n, s)) in cumulative.iteritems():
+    x = (s/n) * 100
+    print "%s: %.02f%%" % (m, x)
 
 if __name__ == '__main__':
   import sys
@@ -137,9 +107,6 @@ if __name__ == '__main__':
   metricnames = metrics_suite.suite.keys()
 
   (evals, cumulative) = load_evaluations(evaldir, metricnames)
-  #clusters = cluster(evals)
-  #print_clusters(clusters, cumulative)
-
-  find_better(evals, "Rand")
+  print_res(cumulative)
 
   print len(evals)

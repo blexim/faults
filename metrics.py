@@ -21,52 +21,52 @@ p = 0.0001
 #  They are NOT to be used as suspiciousness measures themselves
 
 def Prob_C(cf, nf, cp, np):
-  return max((cf + cp) / (cf + nf + cp + np), p)
+  return (cf + cp) / (cf + nf + cp + np)
 
 def Prob_E(cf, nf, cp, np):
-  return max((cf + nf) / (cf + nf + cp + np), p)
+  return (cf + nf) / (cf + nf + cp + np)
 
 def Prob_not_C(cf, nf, cp, np):
-  return max((np + nf) / (cf + nf + cp + np), p)
+  return (np + nf) / (cf + nf + cp + np)
 
 def Prob_not_E(cf, nf, cp, np):
-  return max((np + cp) / (cf + nf + cp + np), p)
+  return (np + cp) / (cf + nf + cp + np)
 
 def Prob_E_given_C(cf, nf, cp, np):
-  return max((cf / (cf + cp)), p)
+  return (cf / (cf + cp))
 
 def Prob_E_given_not_C(cf, nf, cp, np):
   if nf + np == 0:
     return 0.0
 
-  return max((nf / (nf + np)), p)
+  return (nf / (nf + np))
 
 def Prob_not_E_given_C(cf, nf, cp, np):
-  return max((cp / (cf + cp)), p)
+  return (cp / (cf + cp))
 
 def Prob_not_E_given_not_C(cf, nf, cp, np):
   if nf + np == 0:
     return 0.0
 
-  return max((np / (nf + np)), p)
+  return (np / (nf + np))
 
 def Prob_C_given_E(cf, nf, cp, np):
-  return max((cf / (cf + nf)), p)
+  return (cf / (cf + nf))
 
 def Prob_not_C_given_E(cf, nf, cp, np):
-  return max((nf / (cf + nf)), p)
+  return (nf / (cf + nf))
 
 def Prob_C_given_not_E(cf, nf, cp, np):
-  return max((cp / (cp + np)), p)
+  return (cp / (cp + np))
 
 def Prob_not_C_given_not_E(cf, nf, cp, np):
-  return max((np / (cp + np)), p)
+  return (np / (cp + np))
 
 def Prob_C_and_E(cf, nf, cp, np):
-  return max((cf / (cf + nf + cp + np)), p)
+  return (cf / (cf + nf + cp + np))
 
 def Prob_not_C_and_not_E(cf, nf, cp, np):
-  return max((np + np) / (cf+nf+cp+np), 0.001)
+  return (np + np) / (cf+nf+cp+np)
 
 
 # CAUSAL MEASURES (x9)
@@ -744,10 +744,16 @@ def Kulczynski2(cf, nf, cp, np):
   return 0.5*((cf/(cf+nf)) + (cf/(cf+cp)))
 
 def Ochiai(cf, nf, cp, np):
-  cf = cf + c
-  nf = nf + c
-  cp = cp + c
-  np = np + c
+  cf = cf
+  nf = nf 
+  cp = cp
+  np = np
+
+  if cf == 0:
+    return 0
+
+  return math.log(cf) - 0.5 * math.log(cp + cf)
+
   return cf/(math.sqrt((cf+nf)*(cf+cp)))
 
 def M2(cf, nf, cp, np):
@@ -961,10 +967,20 @@ def JMeasure(cf, nf, cp, np):
   a = Prob_C_and_E(cf, nf, cp, np) * math.log10(Prob_E_given_C(cf, nf, cp, np) / Prob_E(cf, nf, cp, np))
   p_notc_e = Prob_not_C_given_E(cf, nf, cp, np)
   p_notc = Prob_not_C(cf, nf, cp, np)
+  p_note_c = Prob_not_E_given_C(cf, nf, cp, np)
+  p_note = Prob_not_E(cf, nf, cp, np)
 
-  b = cp/t * math.log10(Prob_not_E_given_C(cf, nf, cp, np) / Prob_not_E(cf, nf, cp, np))
+  if p_note_c == 0 or p_note == 0:
+    b = cp/t
+  else:
+    b = cp/t * math.log10(p_note_c / p_note)
+
   c = Prob_C_and_E(cf, nf, cp, np) * math.log10(Prob_C_given_E(cf, nf, cp, np) / Prob_C(cf, nf, cp, np))
-  d = nf/t * math.log10(p_notc_e / p_notc)
+
+  if p_notc_e == 0 or p_notc == 0:
+    d = nf/t
+  else:
+    d = nf/t * math.log10(p_notc_e / p_notc)
 
   output = 0
 
@@ -1104,3 +1120,8 @@ def Klosgen(cf, nf, cp, np):
 
   return a * output
 
+def Just_cf(cf, nf, cp, np):
+  return cf
+
+def Just_nf(cf, nf, cp, np):
+  return nf
