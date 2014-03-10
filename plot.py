@@ -33,6 +33,8 @@ def plot_scores(scores, num_metrics):
   maxbugs = 0
   maxtries = 0
   ax = plt.subplot(1, 1, 1)
+  #plt.yscale('log')
+  #plt.xscale('log')
 
   for m in scores:
     if plotted == num_metrics:
@@ -40,7 +42,7 @@ def plot_scores(scores, num_metrics):
 
     plotted += 1
 
-    bugsfound = sorted(scores[m])
+    linesexamined = sorted(scores[m])
     c = next(colours)
 
     xs = [0]
@@ -48,8 +50,11 @@ def plot_scores(scores, num_metrics):
     total = 0
     i = 0
 
-    for b in bugsfound:
-      total += b
+    for l in linesexamined:
+      if l <= 0:
+        continue
+
+      total += l
       i += 1
 
       xs.append(i)
@@ -59,9 +64,11 @@ def plot_scores(scores, num_metrics):
     maxbugs = max(maxbugs, i)
 
     if m == 'Rand':
-      ax.plot(xs, ys, 'o', color=c, label=m, )
+      plt.plot(xs, ys, 'o', color=c, label=m)
+    elif m == 'Lex':
+      plt.plot(xs, ys, '^', color=c, label=m)
     else:
-      ax.plot(xs, ys, color=c, label=m, )
+      plt.plot(xs, ys, color=c, label=m)
 
   print "Plotted %d metrics" % plotted
   

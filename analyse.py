@@ -86,6 +86,9 @@ def score(ranked, bugs, score_type=WORST):
     return -1
 
 def score_rand(ranked, bugs, score_type):
+  if not [b for b in bugs if b in ranked]:
+    return -1
+
   return len(ranked) / (len(bugs) + 1)
 
 def make_ordinals(ranked, score_type=WORST):
