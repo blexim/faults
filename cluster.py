@@ -113,16 +113,16 @@ def find_better(evals, m):
     else:
       worse.append((x, k))
 
-  print "BETTER than %s:" % m
+  print "BETTER than %s (%d):" % (m, len(better))
   for (x, n) in sorted(better):
     print "%s %.02f%%" % (n, x)
 
 
-  print "\nWORSE than %s:" % m
+  print "\nWORSE than %s (%d):" % (m, len(worse))
   for (x, n) in sorted(worse):
     print "%s %.02f%%" % (n, x)
 
-  print "\nTHE SAME as %s:" % m
+  print "\nTHE SAME as %s (%d):" % (m, len(same))
   for (x, n) in sorted(same):
     print "%s %.02f%%" % (n, x)
 
