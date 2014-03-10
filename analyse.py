@@ -45,7 +45,7 @@ def do_stats(test_results, metric):
   stats = []
   executed = set(fail_counts.keys())
 
-  print "Failed: %d, succeeded: %d" % (total_failures, total_successes)
+  #print "Failed: %d, succeeded: %d" % (total_failures, total_successes)
 
   for i in executed:
     if i in fail_counts:
@@ -84,6 +84,9 @@ def score(ranked, bugs, score_type=WORST):
     return min(bug_ordinals)
   else:
     return -1
+
+def score_rand(ranked, bugs, score_type):
+  return len(ranked) / (len(bugs) + 1)
 
 def make_ordinals(ranked, score_type=WORST):
   ret = {}
@@ -130,7 +133,15 @@ def evaluate_metric(test_results, bugs, metric, score_type=WORST):
   if len(ranked) == 0:
     return (0, (-1, -1, -1))
 
-  ret = tuple(score(ranked, bugs, score_type) for score_type in
+  if metric == metrics.Rand:
+    # Special case rand!
+    scorefunc = score_rand
+  else:
+    scorefunc = score
+
+  #scorefunc = score
+
+  ret = tuple(scorefunc(ranked, bugs, score_type) for score_type in
       (WORST, BEST, AVG))
 
   return (len(ranked), ret)

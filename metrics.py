@@ -939,7 +939,11 @@ def Const(cf, nf, cp, np):
   return 1.0
 
 def Rand(cf, nf, cp, np):
-  return random.random()
+  if cf + cp > 0:
+    return 1.0 + random.random()
+  else:
+    return 0
+
 # more Association metrics x13 (+ 1 helper function Prob_not_C_and_not_E)
 
 def PhiCoefficient(cf, nf, cp, np):

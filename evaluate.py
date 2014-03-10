@@ -39,7 +39,6 @@ def evaluate_on_benchmark(benchdir, metrics):
 
     benchnum += 1
 
-
   return ret
 
 def summarise(metricnames, res):
