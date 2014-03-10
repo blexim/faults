@@ -7,6 +7,7 @@ import numpy
 import scipy.cluster.hierarchy as hcluster
 import scipy.stats
 
+from util import load
 import metrics_suite
 
 thresh = 1.1
@@ -18,7 +19,7 @@ def collect(metricnames, scores, res, cumulative):
   for s in scores:
     for (m, (l, (sworst, sbest, savg))) in zip(metricnames, s):
       if l > 0:
-        normalised = float(savg) / l
+        normalised = float(sworst) / l
       else:
         continue
 
@@ -42,9 +43,11 @@ def load_evaluations(evaldir, metricnames):
     benchnames.append(d)
 
     fname = os.path.join(evaldir, d, 'evaluation')
-    summaryf = gzip.GzipFile(fname, 'rb')
-    scores = cPickle.load(summaryf)
-    summaryf.close()
+
+    try:
+      scores = load(fname)
+    except:
+      continue
 
     collect(metricnames, scores, res, cumulative)
 
