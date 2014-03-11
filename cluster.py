@@ -19,18 +19,19 @@ def collect(metricnames, scores, res, cumulative):
   for s in scores:
     for (m, (l, (sworst, sbest, savg))) in zip(metricnames, s):
       if l > 0:
-        normalised = float(savg) / l
+        x = float(sworst)
+        normalised = x / l
       else:
         continue
 
-      if normalised < 0:
-        normalised = 0
+      if x < 0:
+        continue
 
       if m not in res:
-        res[m] = [normalised]
+        res[m] = [x]
         cumulative[m] = (1, normalised)
       else:
-        res[m].append(normalised)
+        res[m].append(x)
         (n, cum) = cumulative[m]
         cumulative[m] = (n + 1, cum + normalised)
 
@@ -114,28 +115,34 @@ def find_better(evals, m):
 
   return (better, same, worse)
 
-def print_better(m, better, same, worse):
+def print_better(m, cumulative, better, same, worse):
   print "BETTER than %s (%d):" % (m, len(better))
   for (x, n) in sorted(better):
-    print "%s %.02f%%" % (n, x)
+    (k, z) = cumulative[n]
+    score = (z / k) * 100
+    print "%s %.02f%%" % (n, score)
 
   print "\nWORSE than %s (%d):" % (m, len(worse))
   for (x, n) in sorted(worse):
-    print "%s %.02f%%" % (n, x)
+    (k, z) = cumulative[n]
+    score = (z / k) * 100
+    print "%s %.02f%%" % (n, score)
 
   print "\nTHE SAME as %s (%d):" % (m, len(same))
   for (x, n) in sorted(same):
-    print "%s %.02f%%" % (n, x)
+    (k, z) = cumulative[n]
+    score = (z / k) * 100
+    print "%s %.02f%%" % (n, score)
 
 def split_hypothesis(evalfs, m):
   metricnames = metrics_suite.suite.keys()
-  (evals, _) = load_evaluations(evalfs, metricnames)
-  return find_better(evals, m)
+  (evals, cumulative) = load_evaluations(evalfs, metricnames)
+  return (cumulative, find_better(evals, m))
 
 if __name__ == '__main__':
   import sys
 
   evalfs = sys.argv[1:]
 
-  (better, same, worse) = split_hypothesis(evalfs, "Rand")
-  print_better("Rand", better, same, worse)
+  (cumulative, (better, same, worse)) = split_hypothesis(evalfs, "Rand")
+  print_better("Rand", cumulative, better, same, worse)
