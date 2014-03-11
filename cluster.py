@@ -7,7 +7,7 @@ import numpy
 import scipy.cluster.hierarchy as hcluster
 import scipy.stats
 
-from util import load
+from util import load, is_measure
 import metrics_suite
 
 thresh = 1.1
@@ -34,16 +34,12 @@ def collect(metricnames, scores, res, cumulative):
         (n, cum) = cumulative[m]
         cumulative[m] = (n + 1, cum + normalised)
 
-def load_evaluations(evaldir, metricnames):
+def load_evaluations(evalfs, metricnames):
   res = {}
   cumulative = {}
   benchnames = []
 
-  for d in os.listdir(evaldir):
-    benchnames.append(d)
-
-    fname = os.path.join(evaldir, d, 'evaluation')
-
+  for fname in evalfs:
     try:
       scores = load(fname)
     except:
@@ -103,6 +99,9 @@ def find_better(evals, m):
   same = []
 
   for (k, vs) in evals.iteritems():
+    if not is_measure(k):
+      continue
+
     diff = compare(baseline, vs)
     x = mean(vs) * 100
 
@@ -113,10 +112,12 @@ def find_better(evals, m):
     else:
       worse.append((x, k))
 
+  return (better, same, worse)
+
+def print_better(m, better, same, worse):
   print "BETTER than %s (%d):" % (m, len(better))
   for (x, n) in sorted(better):
     print "%s %.02f%%" % (n, x)
-
 
   print "\nWORSE than %s (%d):" % (m, len(worse))
   for (x, n) in sorted(worse):
@@ -126,26 +127,15 @@ def find_better(evals, m):
   for (x, n) in sorted(same):
     print "%s %.02f%%" % (n, x)
 
+def split_hypothesis(evalfs, m):
+  metricnames = metrics_suite.suite.keys()
+  (evals, _) = load_evaluations(evalfs, metricnames)
+  return find_better(evals, m)
+
 if __name__ == '__main__':
   import sys
 
-  evaldir = sys.argv[1]
+  evalfs = sys.argv[1:]
 
-  if len(sys.argv) > 2:
-    thresh = float(sys.argv[2])
-
-  if len(sys.argv) > 3:
-    metricname = sys.argv[3]
-
-  metricnames = [m for m in metrics_suite.suite.keys() if
-                 not m.startswith('Prob_') and
-                 not m.startswith('Just_') and
-                 m != ('Const')]
-
-  (evals, cumulative) = load_evaluations(evaldir, metricnames)
-  #clusters = cluster(evals)
-  #print_clusters(clusters, cumulative)
-
-  find_better(evals, "Rand")
-
-  print len(evals)
+  (better, same, worse) = split_hypothesis(evalfs, "Rand")
+  print_better("Rand", better, same, worse)

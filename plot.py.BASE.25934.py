@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import util
 import metrics_suite
-import cluster
 from analyse import WORST, BEST, AVG
 
 def load_scores(fname, metricnames, scores):
@@ -26,8 +25,8 @@ def load_scores(fname, metricnames, scores):
         else:
           scoredict[m].append(score)
 
-def plot_scores(scores, split, num_metrics):
-  (better, same, worse) = split
+def plot_scores(scores, num_metrics):
+  colours = iter(cm.rainbow(np.linspace(0, 1, num_metrics)))
   plots = []
   legends = []
   plotted = 0
@@ -38,55 +37,14 @@ def plot_scores(scores, split, num_metrics):
   #plt.yscale('log')
   #plt.xscale('log')
 
-  better = [m for (_, m) in better]
-  same = [m for (_, m) in same]
-  worse = [m for (_, m) in worse]
-
-  better_colour = '#079100'
-  same_colour = '#e3b009'
-  worse_colour = '#fc1414'
-
-  better_style = ':'
-  same_style = '-'
-  worse_style = '--'
-
-  labels = set([])
-
   for m in scores:
     if plotted == num_metrics:
       break
 
-    if not util.is_measure(m):
-      continue
-
     plotted += 1
 
     linesexamined = sorted(scores[m])
-
-    if m in better:
-      c = better_colour
-      s = better_style
-      label = "Better than random"
-    elif m in same:
-      c = same_colour
-      s = same_style
-      label = "Same as random"
-    elif m in worse:
-      c = worse_colour
-      s = worse_style
-      label = "Worse than random"
-    else:
-      print m
-
-    if m == 'Rand':
-      label = "Random"
-    elif m == 'Lex':
-      label = 'Lex'
-
-    if label in labels:
-      label = ""
-
-    labels.add(label)
+    c = next(colours)
 
     xs = [0]
     ys = [0]
@@ -110,22 +68,18 @@ def plot_scores(scores, split, num_metrics):
     if m == 'Rand':
       plt.plot(xs, ys, 'o', color=c, label=m)
     elif m == 'Lex':
-      plt.plot(xs, ys, 'd', color=c, label=m)
+      plt.plot(xs, ys, '^', color=c, label=m)
     else:
-      plt.plot(xs, ys, s, color=c, label=label)
+      plt.plot(xs, ys, color=c, label=m)
 
   print "Plotted %d metrics" % plotted
   
   plt.xlabel("Bugs found")
   plt.ylabel("Lines examined")
-  ax.legend(loc=2)
+  #ax.legend(loc=2)
   ax.set_xlim(0, maxbugs)
   ax.set_ylim(0, mintries)
-<<<<<<< HEAD
-  plt.savefig("sfl-cactus-avg-fill-space.pdf")
-=======
-  plt.savefig("sfl-cactus-worst-fill-space.pdf")
->>>>>>> bfebf3c2528e3c2481433315aa0c096eaf2db72d
+  plt.savefig("sfl-cactus-fill-space.pdf")
   plt.show()
 
 if __name__ == '__main__':
@@ -136,17 +90,12 @@ if __name__ == '__main__':
   avg_scores = {}
   scores = (worst_scores, best_scores, avg_scores)
 
-  metricnames = metrics_suite.suite.keys()
+  metricnames = [m for m in metrics_suite.suite.keys()
+                 if not m.startswith('Prob_') and
+                    not m.startswith('Just_') and
+                    m != ('Const')]
 
-  evalfs = sys.argv[1:]
-
-  for fname in evalfs:
+  for fname in sys.argv[1:]:
     load_scores(fname, metricnames, scores)
 
-<<<<<<< HEAD
-  plot_scores(avg_scores, len(metricnames))
-=======
-  split = cluster.split_hypothesis(evalfs, "Rand")
-
-  plot_scores(worst_scores, split, len(metricnames))
->>>>>>> bfebf3c2528e3c2481433315aa0c096eaf2db72d
+  plot_scores(worst_scores, len(metricnames))

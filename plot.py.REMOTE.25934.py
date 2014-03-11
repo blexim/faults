@@ -121,11 +121,7 @@ def plot_scores(scores, split, num_metrics):
   ax.legend(loc=2)
   ax.set_xlim(0, maxbugs)
   ax.set_ylim(0, mintries)
-<<<<<<< HEAD
-  plt.savefig("sfl-cactus-avg-fill-space.pdf")
-=======
   plt.savefig("sfl-cactus-worst-fill-space.pdf")
->>>>>>> bfebf3c2528e3c2481433315aa0c096eaf2db72d
   plt.show()
 
 if __name__ == '__main__':
@@ -143,10 +139,6 @@ if __name__ == '__main__':
   for fname in evalfs:
     load_scores(fname, metricnames, scores)
 
-<<<<<<< HEAD
-  plot_scores(avg_scores, len(metricnames))
-=======
   split = cluster.split_hypothesis(evalfs, "Rand")
 
   plot_scores(worst_scores, split, len(metricnames))
->>>>>>> bfebf3c2528e3c2481433315aa0c096eaf2db72d
