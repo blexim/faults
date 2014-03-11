@@ -127,18 +127,15 @@ def print_better(m, better, same, worse):
   for (x, n) in sorted(same):
     print "%s %.02f%%" % (n, x)
 
+def split_hypothesis(evalfs, m):
+  metricnames = metrics_suite.suite.keys()
+  (evals, _) = load_evaluations(evalfs, metricnames)
+  return find_better(evals, m)
+
 if __name__ == '__main__':
   import sys
 
   evalfs = sys.argv[1:]
 
-  metricnames = metrics_suite.suite.keys()
-
-  (evals, cumulative) = load_evaluations(evalfs, metricnames)
-  #clusters = cluster(evals)
-  #print_clusters(clusters, cumulative)
-
-  (better, same, worse) = find_better(evals, "Rand")
+  (better, same, worse) = split_hypothesis(evalfs, "Rand")
   print_better("Rand", better, same, worse)
-
-  print len(evals)
