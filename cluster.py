@@ -34,16 +34,12 @@ def collect(metricnames, scores, res, cumulative):
         (n, cum) = cumulative[m]
         cumulative[m] = (n + 1, cum + normalised)
 
-def load_evaluations(evaldir, metricnames):
+def load_evaluations(evalfs, metricnames):
   res = {}
   cumulative = {}
   benchnames = []
 
-  for d in os.listdir(evaldir):
-    benchnames.append(d)
-
-    fname = os.path.join(evaldir, d, 'evaluation')
-
+  for fname in evalfs:
     try:
       scores = load(fname)
     except:
@@ -134,17 +130,11 @@ def print_better(m, better, same, worse):
 if __name__ == '__main__':
   import sys
 
-  evaldir = sys.argv[1]
-
-  if len(sys.argv) > 2:
-    thresh = float(sys.argv[2])
-
-  if len(sys.argv) > 3:
-    metricname = sys.argv[3]
+  evalfs = sys.argv[1:]
 
   metricnames = metrics_suite.suite.keys()
 
-  (evals, cumulative) = load_evaluations(evaldir, metricnames)
+  (evals, cumulative) = load_evaluations(evalfs, metricnames)
   #clusters = cluster(evals)
   #print_clusters(clusters, cumulative)
 
