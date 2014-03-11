@@ -7,7 +7,7 @@ import numpy
 import scipy.cluster.hierarchy as hcluster
 import scipy.stats
 
-from util import load
+from util import load, is_measure
 import metrics_suite
 
 thresh = 1.1
@@ -19,7 +19,7 @@ def collect(metricnames, scores, res, cumulative):
   for s in scores:
     for (m, (l, (sworst, sbest, savg))) in zip(metricnames, s):
       if l > 0:
-        normalised = float(sworst) / l
+        normalised = float(savg) / l
       else:
         continue
 
@@ -103,6 +103,9 @@ def find_better(evals, m):
   same = []
 
   for (k, vs) in evals.iteritems():
+    if not is_measure(k):
+      continue
+
     diff = compare(baseline, vs)
     x = mean(vs) * 100
 
@@ -137,10 +140,7 @@ if __name__ == '__main__':
   if len(sys.argv) > 3:
     metricname = sys.argv[3]
 
-  metricnames = [m for m in metrics_suite.suite.keys() if
-                 not m.startswith('Prob_') and
-                 not m.startswith('Just_') and
-                 m != ('Const')]
+  metricnames = metrics_suite.suite.keys()
 
   (evals, cumulative) = load_evaluations(evaldir, metricnames)
   #clusters = cluster(evals)

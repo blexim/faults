@@ -41,6 +41,9 @@ def plot_scores(scores, num_metrics):
     if plotted == num_metrics:
       break
 
+    if not util.is_measure(m):
+      continue
+
     plotted += 1
 
     linesexamined = sorted(scores[m])
@@ -90,10 +93,7 @@ if __name__ == '__main__':
   avg_scores = {}
   scores = (worst_scores, best_scores, avg_scores)
 
-  metricnames = [m for m in metrics_suite.suite.keys()
-                 if not m.startswith('Prob_') and
-                    not m.startswith('Just_') and
-                    m != ('Const')]
+  metricnames = metrics_suite.suite.keys()
 
   for fname in sys.argv[1:]:
     load_scores(fname, metricnames, scores)
