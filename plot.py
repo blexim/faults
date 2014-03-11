@@ -139,6 +139,6 @@ if __name__ == '__main__':
   for fname in evalfs:
     load_scores(fname, metricnames, scores)
 
-  split = cluster.split_hypothesis(evalfs, "Rand")
+  (_, split) = cluster.split_hypothesis(evalfs, "Rand")
 
   plot_scores(avg_scores, split, len(metricnames))
