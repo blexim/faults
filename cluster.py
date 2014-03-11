@@ -116,10 +116,12 @@ def find_better(evals, m):
     else:
       worse.append((x, k))
 
+  return (better, same, worse)
+
+def print_better(m, better, same, worse):
   print "BETTER than %s (%d):" % (m, len(better))
   for (x, n) in sorted(better):
     print "%s %.02f%%" % (n, x)
-
 
   print "\nWORSE than %s (%d):" % (m, len(worse))
   for (x, n) in sorted(worse):
@@ -146,6 +148,7 @@ if __name__ == '__main__':
   #clusters = cluster(evals)
   #print_clusters(clusters, cumulative)
 
-  find_better(evals, "Rand")
+  (better, same, worse) = find_better(evals, "Rand")
+  print_better("Rand", better, same, worse)
 
   print len(evals)
