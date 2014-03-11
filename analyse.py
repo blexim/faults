@@ -86,7 +86,7 @@ def score(ranked, bugs, score_type=WORST):
     return -1
 
 def score_rand(ranked, bugs, score_type):
-  if not [b for b in bugs if b in ranked]:
+  if not [1 for (s, l) in ranked if l in bugs]:
     return -1
 
   return len(ranked) / (len(bugs) + 1)

@@ -32,6 +32,7 @@ def plot_scores(scores, num_metrics):
   plotted = 0
   maxbugs = 0
   maxtries = 0
+  mintries = 99999999
   ax = plt.subplot(1, 1, 1)
   #plt.yscale('log')
   #plt.xscale('log')
@@ -47,7 +48,7 @@ def plot_scores(scores, num_metrics):
 
     xs = [0]
     ys = [0]
-    total = 0
+    total = 1
     i = 0
 
     for l in linesexamined:
@@ -61,6 +62,7 @@ def plot_scores(scores, num_metrics):
       ys.append(total)
 
     maxtries = max(maxtries, total)
+    mintries = min(mintries, total)
     maxbugs = max(maxbugs, i)
 
     if m == 'Rand':
@@ -76,7 +78,8 @@ def plot_scores(scores, num_metrics):
   plt.ylabel("Lines examined")
   #ax.legend(loc=2)
   ax.set_xlim(0, maxbugs)
-  ax.set_ylim(0, maxtries)
+  ax.set_ylim(0, mintries)
+  plt.savefig("sfl-cactus-fill-space.pdf")
   plt.show()
 
 if __name__ == '__main__':
