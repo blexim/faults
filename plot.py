@@ -90,8 +90,10 @@ if __name__ == '__main__':
   avg_scores = {}
   scores = (worst_scores, best_scores, avg_scores)
 
-  #metricnames = ("Rand", "DandK", "Lex", "PPV", "Rips", "Wong3", "Fleiss")
-  metricnames = metrics_suite.suite.keys()
+  metricnames = [m for m in metrics_suite.suite.keys()
+                 if not m.startswith('Prob_') and
+                    not m.startswith('Just_') and
+                    m != ('Const')]
 
   for fname in sys.argv[1:]:
     load_scores(fname, metricnames, scores)
