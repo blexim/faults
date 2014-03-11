@@ -79,7 +79,7 @@ def plot_scores(scores, num_metrics):
   #ax.legend(loc=2)
   ax.set_xlim(0, maxbugs)
   ax.set_ylim(0, mintries)
-  plt.savefig("sfl-cactus-fill-space.pdf")
+  plt.savefig("sfl-cactus-avg-fill-space.pdf")
   plt.show()
 
 if __name__ == '__main__':
@@ -96,4 +96,4 @@ if __name__ == '__main__':
   for fname in sys.argv[1:]:
     load_scores(fname, metricnames, scores)
 
-  plot_scores(worst_scores, len(metricnames))
+  plot_scores(avg_scores, len(metricnames))

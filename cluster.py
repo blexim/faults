@@ -19,7 +19,7 @@ def collect(metricnames, scores, res, cumulative):
   for s in scores:
     for (m, (l, (sworst, sbest, savg))) in zip(metricnames, s):
       if l > 0:
-        normalised = float(sworst) / l
+        normalised = float(savg) / l
       else:
         continue
 
