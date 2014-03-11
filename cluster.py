@@ -137,7 +137,10 @@ if __name__ == '__main__':
   if len(sys.argv) > 3:
     metricname = sys.argv[3]
 
-  metricnames = metrics_suite.suite.keys()
+  metricnames = [m for m in metrics_suite.suite.keys() if
+                 not m.startswith('Prob_') and
+                 not m.startswith('Just_') and
+                 m != ('Const')]
 
   (evals, cumulative) = load_evaluations(evaldir, metricnames)
   #clusters = cluster(evals)
