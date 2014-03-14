@@ -50,6 +50,10 @@ def plot_scores(scores, split, num_metrics):
   same_style = '-'
   worse_style = '--'
 
+  better_dashes = (20, 10)
+  same_dashes = (10, 0)
+  worse_dashes = (5, 5)
+
   labels = set([])
 
   for m in scores:
@@ -66,14 +70,17 @@ def plot_scores(scores, split, num_metrics):
     if m in better:
       c = better_colour
       s = better_style
+      dashes = better_dashes
       label = "Better than random"
     elif m in same:
       c = same_colour
       s = same_style
+      dashes = same_dashes
       label = "Same as random"
     elif m in worse:
       c = worse_colour
       s = worse_style
+      dashes = worse_dashes
       label = "Worse than random"
     else:
       print m
@@ -108,11 +115,11 @@ def plot_scores(scores, split, num_metrics):
     maxbugs = max(maxbugs, i)
 
     if m == 'Rand':
-      plt.plot(xs, ys, 'o', color=c, label=m)
+      plt.plot(xs, ys, 'o', color=c, label=label)
     elif m == 'Lex':
-      plt.plot(xs, ys, 'd', color=c, label=m)
+      plt.plot(xs, ys, 'd', color=c, label=label)
     else:
-      plt.plot(xs, ys, s, color=c, label=label)
+      plt.plot(xs, ys, s, lw=0.6, dashes=dashes, color=c, label=label)
 
   print "Plotted %d metrics" % plotted
   
