@@ -1129,3 +1129,75 @@ def Just_cf(cf, nf, cp, np):
 
 def Just_nf(cf, nf, cp, np):
   return nf
+
+def Lex_Ochiai(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+
+  g = cf/(math.sqrt((cf+nf)*(cf+cp)))
+
+  output = 0
+
+  if nf < 1:
+    output = g+3
+
+  if cf >= 1 and nf > 1 and cp < 1 :
+    output = g+1
+
+  if cf >= 1 and nf > 1 and cp > 1 :
+    output = g
+
+  if cf < 1:
+    output = 0
+
+  return output
+
+def Lex_Zoltar(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+
+  g = cf/((cf+nf+cp)+((10000 * nf * cp) / cf))
+
+  output = 0
+
+  if nf < 1:
+    output = g+3
+
+  if cf >= 1 and nf > 1 and cp < 1 :
+    output = g+1
+
+  if cf >= 1 and nf > 1 and cp > 1 :
+    output = g
+
+  if cf < 1:
+    output = 0
+
+  return output
+
+def Lex_M2(cf, nf, cp, np):
+  cf = cf + c
+  nf = nf + c
+  cp = cp + c
+  np = np + c
+
+  g = cf / (cf + np + (2 * (nf + cp)))
+
+  output = 0
+
+  if nf < 1:
+    output = g+3
+
+  if cf >= 1 and nf > 1 and cp < 1 :
+    output = g+1
+
+  if cf >= 1 and nf > 1 and cp > 1 :
+    output = g
+
+  if cf < 1:
+    output = 0
+
+  return output

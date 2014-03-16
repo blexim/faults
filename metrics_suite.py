@@ -114,5 +114,8 @@ suite = {
   'Klosgen': metrics.Klosgen,
   'Just_cf': metrics.Just_cf,
   'Just_nf': metrics.Just_nf,
+  'Lex_Ochiai': metrics.Lex_Ochiai,
+  'Lex_Zoltar': metrics.Lex_Zoltar,
+  'Lex_M2': metrics.Lex_M2,
 
 }
